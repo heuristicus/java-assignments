@@ -4,10 +4,14 @@
  */
 package GraphDB;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.Calendar;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -59,10 +63,16 @@ public class testserver {
             }
 
             String module = in.readLine();
-            String year = in.readLine();
             int mod = Integer.parseInt(module);
-            int yr = Integer.parseInt(year);
-            System.out.println(dbAccess.getNumberStudents(mod, yr));
+            ArrayList<Point> regPoint = new ArrayList<Point>();
+            int fyear = dbAccess.getFirstModuleYear(mod);
+            for (int curYear = fyear; curYear <= Calendar.getInstance().get(Calendar.YEAR); curYear++) {
+                regPoint.add(new Point(curYear, dbAccess.getNumberStudents(mod, curYear)));
+            }
+
+            ObjectOutputStream objOut = new ObjectOutputStream(sock.getOutputStream());
+            objOut.writeObject(regPoint);
+            objOut.flush();
 
 
 

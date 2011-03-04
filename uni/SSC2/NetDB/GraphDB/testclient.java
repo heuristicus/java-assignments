@@ -4,10 +4,13 @@
  */
 package GraphDB;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -50,15 +53,18 @@ public class testclient {
             String authRes = in.readLine();
             if (authRes.equals("love some, old boy")) {
                 System.out.println("oooh");
-                // TODO read module id, acyear
+                // TODO read module id
                 out.write("3");
-                out.newLine();
-                out.flush();
-                out.write("2008");
                 out.newLine();
                 out.flush();
             } else {
                 System.out.println("ahhh");
+            }
+
+            ObjectInputStream objIn = new ObjectInputStream(sock.getInputStream());
+            ArrayList<Point> regPoints = (ArrayList<Point>) objIn.readObject();
+            for (Point point : regPoints) {
+                System.out.println(point);
             }
 
 
