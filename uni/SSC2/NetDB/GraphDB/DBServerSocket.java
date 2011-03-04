@@ -5,9 +5,11 @@
 package GraphDB;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
+import java.net.UnknownHostException;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -16,48 +18,38 @@ import javax.net.ssl.SSLSocket;
  *
  * @author michal
  */
-public class DBServerSocket extends DBSocket {
+public class DBServerSocket {
 
+    SSLSocket sock;
+    BufferedReader in;
+    BufferedWriter out;
+//    ObjectInputStream objIn;
+//    ObjectOutputStream objOut;
+    int port;
+    boolean secure;
     SSLServerSocket servSock;
 
-    DBServerSocket(int port, boolean secure) {
-        super(port, secure);
-        createSocket();
+    DBServerSocket(int port) {
+        this.port = port;
+        initSock();
     }
 
-    // <editor-fold defaultstate="collapsed" desc="Connection methods.">
-    public void createSocket() {
+    private void initSock() {
         try {
-            if (secure) {
-                System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
-                System.setProperty("javax.net.ssl.keyStorePassword", "password");
-                SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-                servSock = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
-//                servSock = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(port);
-            } else {
-                System.out.println("Insecure socket unavailable.");
-//                servSock = new ServerSocket(port);
-            }
-        } catch (IOException ex) {
-            System.out.println("Exception while attempting to create socket.");
+            System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
+            System.setProperty("javax.net.ssl.keyStorePassword", "password");
+            SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            servSock = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
+            sock = (SSLSocket) servSock.accept();
+            System.out.println("Connected to a server.");
+            out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            System.out.println("Sucessfully initialised input and output streams.");
+        } catch (UnknownHostException ex) {
+            System.out.println("Could not find host.");
             ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Listens for a connection from a client. Intialises input and output streams when this happens.
-     */
-    public void listen() {
-        try {
-            System.out.printf("Server listening on port %d\n", port);
-            super.sock = (SSLSocket) servSock.accept();
-            System.out.printf("Server connected to client at %s\n", sock.getInetAddress());
-            super.out = new PrintStream(sock.getOutputStream(), true);
-            super.in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-//            super.objOut = new ObjectOutputStream(sock.getOutputStream());
-//            super.objIn = new ObjectInputStream(sock.getInputStream());
         } catch (IOException ex) {
-            System.out.println("Exception while listening for a connection from a client.");
+            System.out.println("IO Exception while initalising the socket.");
             ex.printStackTrace();
         }
     }
@@ -68,10 +60,10 @@ public class DBServerSocket extends DBSocket {
     public void disconnect() {
         try {
             out.close();
-            objOut.close();
+//            objOut.close();
             in.close();
+//            objIn.close()
             sock.close();
-            listen();
         } catch (IOException ex) {
             System.out.println("Error while closing connection with client.");
             ex.printStackTrace();
@@ -84,8 +76,9 @@ public class DBServerSocket extends DBSocket {
     public void stop() {
         try {
             out.close();
-            objOut.close();
+//            objOut.close();
             in.close();
+//            objIn.close();
             sock.close();
             servSock.close();
         } catch (IOException ex) {
@@ -95,4 +88,32 @@ public class DBServerSocket extends DBSocket {
 
     }
     // </editor-fold>
+
+    public void sendString(String s) {
+        try {
+            out.write(s);
+            out.newLine();
+        } catch (IOException ex) {
+            System.out.println("Error while attempting to write a string to output.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void sendObject(Object o) {
+    }
+
+    public String getStringMessage() throws IOException {
+        StringBuilder build = new StringBuilder();
+        String inLine = in.readLine();
+        System.out.println(inLine);
+        while (!inLine.equals("")) {
+            build.append(inLine);
+            inLine = in.readLine();
+        }
+        return build.toString();
+    }
+    
+//    public Object getObjectMessage() throws IOException, ClassNotFoundException {
+//        return objIn.readObject();
+//    }
 }

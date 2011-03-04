@@ -32,12 +32,11 @@ public class DBServer {
         this.secure = secure;
         //*************CHANGE THE BELOW TO CONNECT TO ANOTHER DB****************
         dbAccess = new DBAccessor("jdbc:postgresql://localhost:5432/uschool", "mich", "mich");
-        sock = new DBServerSocket(port, secure);
+        sock = new DBServerSocket(port);
         start();
     }
 
     private void start() {
-        sock.listen();
         handshake();
     }
 
