@@ -8,12 +8,8 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.PrintStream;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -45,7 +41,6 @@ public class DBClientSocket {
             SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             sock = (SSLSocket) sslsocketfactory.createSocket(ip, port);
             System.out.println("Connected to a server.");
-
             out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             System.out.println("Sucessfully initialised input and output streams.");
@@ -89,7 +84,7 @@ public class DBClientSocket {
     public String getStringMessage() throws IOException {
         StringBuilder build = new StringBuilder();
         String inLine = in.readLine();
-//        System.out.println(inLine);
+        System.out.println(inLine);
         while (!inLine.equals("")) {
             build.append(inLine);
             inLine = in.readLine();
