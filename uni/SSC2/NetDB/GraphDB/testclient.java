@@ -12,7 +12,11 @@ import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -59,7 +63,9 @@ public class testclient {
     public void prepareServerSession() {
         try {
             handshake();
+            System.out.println("Handshaking successful.");
             authenticate();
+            System.out.println("Authentication successful.");
             System.out.println("Login to server successful.");
         } catch (IOException ex) {
             System.out.println("IO Exception while attempting to make a connection.");
@@ -75,14 +81,17 @@ public class testclient {
         // FIXME ***BELOW MAY CAUSE ERRORS (WHY THE HELL)***
         objIn = new ObjectInputStream(sock.getInputStream());
         ArrayList<Point> regPoints = (ArrayList<Point>) getObjectMessage();
+        for (Point point : regPoints) {
+            System.out.println(point);
+        }
         return regPoints;
     }
 
     private void handshake() throws IOException, ActionFailedException {
         String greeting = "graphclient";
         sendString(greeting);
-        String resp = in.readLine();
-        if (!resp.equals("good day, what?")) {
+        String resp = getStringMessage();
+        if (!resp.equals("graphserver")) {
             throw new ActionFailedException("Handshaking with the server failed.");
         }
     }
@@ -94,17 +103,19 @@ public class testclient {
         System.out.println("Please enter your password.");
         String pass = cmdIn.readLine();
 
-        String authStr = user + ":" + pass;
+        String authStr = user + ":" + getPasswordHex(pass);
 
         sendString(authStr);
-        String authRes = in.readLine();
-        if (!authRes.equals("love some, old boy")) {
+        String authRes = getStringMessage();
+        if (!authRes.equals("authsuccess")) {
             System.out.println("Authentication with server failed. Try again? (y/n)");
             String retry = cmdIn.readLine();
-            if (!retry.equals("y") || !retry.equals("yes")) {
-                throw new ActionFailedException("User terminated authentication with server.");
-            } else {
+            if (retry.equals("y") || retry.equals("yes")) {
+                sendString("reauth");
                 authenticate();
+            } else {
+                sendString("noreauth");
+                throw new ActionFailedException("User terminated authentication with server.");
             }
         }
     }
@@ -134,9 +145,9 @@ public class testclient {
 //        }
 //    }
 
-//    public String getStringMessage() throws IOException{
-//        return in.readLine();
-//    }
+    public String getStringMessage() throws IOException{
+        return in.readLine();
+    }
 
     /**
      * Gets an object from the object input stream.
@@ -153,14 +164,16 @@ public class testclient {
         t.initialiseSocket();
         t.prepareServerSession();
         try {
-//            t.spam();
             ArrayList<Point> p = t.getRegistrationPoints();
         } catch (IOException ex) {
             System.out.println("IO exception while getting registration points.");
+            ex.printStackTrace();
         } catch (ClassNotFoundException ex) {
             System.out.println("Class not found while getting registration points");
+            ex.printStackTrace();
         } catch (ClassCastException ex) {
             System.out.println("Classcast exception when attempting to cast received object.");
+            ex.printStackTrace();
         }
         //        try {
         //            System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
@@ -215,4 +228,32 @@ public class testclient {
         //        }
 
     }
+
+    // <editor-fold defaultstate="collapsed" desc="generates a password hex.">
+    public String getPasswordHex(String password) {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+            byte[] pass = password.getBytes();
+            md.reset();
+            md.update(pass);
+            byte[] mdByte = md.digest();
+            StringBuilder passHex = new StringBuilder();
+            for (int i = 0; i
+                    < mdByte.length; i++) {
+                passHex.append(Integer.toHexString(0xFF & mdByte[i]));
+            }
+            return passHex.toString();
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println("Encryption algorithm not found.");
+            System.exit(1);
+        } catch (Exception ex) {
+            System.out.println("Exception while trying to process password.");
+            System.exit(1);
+        } // Should never be reached. An exception will be thrown and the system will exit
+        // or the method will return the hex string.
+        return null;
+    }
+// </editor-fold>
+
 }

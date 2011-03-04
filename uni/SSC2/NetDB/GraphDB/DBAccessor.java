@@ -11,6 +11,8 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -36,16 +38,21 @@ public class DBAccessor {
         connect();
     }
 
-    private void connect() {
-        try {
-            Class.forName("org.postgresql.Driver");
-            c = DriverManager.getConnection(dbLoc, user, password);
-        } catch (SQLException ex) {
-            System.out.println("SQL Exception while attempting to connect database.");
-            ex.printStackTrace();
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Unable to find postgres drivers.");
-            ex.printStackTrace();
+    /**
+     * Connects the database, if it is not already connected.
+     */
+    public void connect() {
+        if (c == null) {
+            try {
+                Class.forName("org.postgresql.Driver");
+                c = DriverManager.getConnection(dbLoc, user, password);
+            } catch (SQLException ex) {
+                System.out.println("SQL Exception while attempting to connect database.");
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                System.out.println("Unable to find postgres drivers.");
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -58,26 +65,72 @@ public class DBAccessor {
         }
     }
 
+    /**
+     * Takes the username and password hex and checks for the user's role in the
+     * database.
+     * @param user
+     * @param password
+     * @return
+     * @throws SQLException
+     */
     public String getUserPrivileges(String user, String password) throws SQLException {
-        ResultSet details = getUserDetails(user, getPasswordHex(password));
+        ResultSet details = getUserDetails(user, password);
         if (details.first()) {
             String userLevel = details.getString("rolename");
-            return userLevel;
+            return userLevel.trim();
         }
         return "noauth";
+    }
 
+    public int getNumberStudents(int moduleID, int academicYear) {
+        try {
+            ResultSet mStudents = getNumberOfStudentsOnModule(moduleID, academicYear);
+            if (mStudents.first()) {
+                return mStudents.getInt("registeredstudents");
+            }
+        } catch (SQLException ex) {
+            System.out.printf("Failed to get number of students on module %d in %d.\n", moduleID, academicYear);
+        }
+        return Integer.MIN_VALUE;
+    }
+
+    public int getFirstModuleYear(int moduleID) {
+        try {
+            ResultSet mYear = getFirstModuleYearQ(moduleID);
+            if (mYear.first()) {
+                return mYear.getInt("firstyear");
+            }
+        } catch (SQLException ex) {
+            System.out.printf("Failed to get the first module year for module %d.\n", moduleID);
+        }
+        return Integer.MIN_VALUE;
     }
 
     // <editor-fold defaultstate="collapsed" desc="Query methods">
     private ResultSet getNumberOfStudentsOnModule(int moduleID, int academicYear) {
         try {
-            s = c.prepareStatement("SELECT COUNT(universityid) "
+            s = c.prepareStatement("SELECT COUNT(universityid) AS registeredstudents "
                     + "FROM moduleregistration "
                     + "WHERE moduleid = ? "
                     + "AND academicyear = ?",
                     ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
             s.setInt(1, moduleID);
             s.setInt(2, academicYear);
+            return s.executeQuery();
+        } catch (SQLException ex) {
+            System.out.println("Exception in method getNumberOfStudentsOnModule");
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private ResultSet getFirstModuleYearQ(int moduleID) {
+        try {
+            s = c.prepareStatement("SELECT MIN(academicyear) AS firstyear "
+                    + "FROM moduleregistration "
+                    + "WHERE moduleid = ? ",
+                    ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            s.setInt(1, moduleID);
             return s.executeQuery();
         } catch (SQLException ex) {
             System.out.println("Exception in method getNumberOfStudentsOnModule");
@@ -109,31 +162,4 @@ public class DBAccessor {
         return null;
     }
     // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="password hex stuff - MOVE TO CLIENT SIDE">
-    public String getPasswordHex(String password) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("SHA-1");
-            byte[] pass = password.getBytes();
-            md.reset();
-            md.update(pass);
-            byte[] mdByte = md.digest();
-            StringBuilder passHex = new StringBuilder();
-            for (int i = 0; i < mdByte.length; i++) {
-                passHex.append(Integer.toHexString(0xFF & mdByte[i]));
-            }
-            return passHex.toString();
-        } catch (NoSuchAlgorithmException ex) {
-            System.out.println("Encryption algorithm not found.");
-            System.exit(1);
-        } catch (Exception ex) {
-            System.out.println("Exception while trying to process password.");
-            System.exit(1);
-        }
-        // Should never be reached. An exception will be thrown and the system will exit
-        // or the method will return the hex string.
-        return null;
-    }
-// </editor-fold>
 }
