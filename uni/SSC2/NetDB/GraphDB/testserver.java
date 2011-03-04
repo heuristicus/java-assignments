@@ -5,8 +5,9 @@
 package GraphDB;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -20,24 +21,40 @@ public class testserver {
     public static void main(String[] arstring) {
         try {
             System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
-                System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            SSLServerSocketFactory sslserversocketfactory =
-                    (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
-            SSLServerSocket sslserversocket =
-                    (SSLServerSocket) sslserversocketfactory.createServerSocket(9999);
-            SSLSocket sslsocket = (SSLSocket) sslserversocket.accept();
+            System.setProperty("javax.net.ssl.keyStorePassword", "password");
+            SSLServerSocket servSock = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(2000);
+            System.out.printf("Server listening on port %d.\n", servSock.getLocalPort());
+            SSLSocket sock = (SSLSocket) servSock.accept();
+            System.out.printf("Client connected from %s.\n", sock.getInetAddress());
+            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-            InputStream inputstream = sslsocket.getInputStream();
-            InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
-            BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
-
-            String string = null;
-            while ((string = bufferedreader.readLine()) != null) {
-                System.out.println(string);
-                System.out.flush();
+            String greeting = in.readLine();
+            if (greeting.equals("what ho, old chap?")) {
+                System.out.println("Client handshake successful.");
+                out.write("good day, what?");
+                out.newLine();
+                out.flush();
+            } else {
+                System.out.println("Client handshake failed.");
+                out.write("you what?");
+                out.newLine();
+                out.flush();
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+
+            String auth = in.readLine();
+            if (auth.equals("some tea, chap?")) {
+                System.out.println("Client authentication successful.");
+                DBAccessor dbAccess = new DBAccessor("jdbc:postgresql://localhost:5432/uschool", "mich", "mich");
+                System.out.println(dbAccess.getUserPrivileges("admin", "admin"));
+            }
+
+
+
+            out.close();
+            in.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
