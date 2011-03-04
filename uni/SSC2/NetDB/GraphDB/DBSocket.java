@@ -52,7 +52,7 @@ public abstract class DBSocket {
         StringBuilder build = new StringBuilder();
         String inLine = in.readLine();
         System.out.println(inLine);
-        while (inLine != null) {
+        while (!inLine.equals("")) {
             build.append(inLine);
             inLine = in.readLine();
         }
