@@ -7,10 +7,14 @@ package GraphDB;
 import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
@@ -20,58 +24,172 @@ import javax.net.ssl.SSLSocketFactory;
  */
 public class testclient {
 
-    public static void main(String[] arstring) {
+    SSLSocket sock;
+    BufferedWriter out;
+    BufferedReader in;
+    ObjectInputStream objIn;
+    String host;
+    int port;
+
+    public testclient(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    /**
+     * Initialises the socket and the streams that the object uses to
+     * transfer data.
+     */
+    public void initialiseSocket() {
         try {
             System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
             System.setProperty("javax.net.ssl.trustStorePassword", "password");
-            SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
-            SSLSocket sock = (SSLSocket) sslsocketfactory.createSocket("localhost", 2000);
-            System.out.println("Connected to server.");
-            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
-            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
-
-            String greeting = "what ho, old chap?";
-            out.write(greeting);
-            out.newLine();
-            out.flush();
-
-            String resp = in.readLine();
-            if (resp.equals("good day, what?")){
-                System.out.println("well well well");
-            } else {
-                System.out.println("oh dear.");
-                //TODO exit properly.
-                return;
-            }
-
-            // TODO read username and password
-            String auth = "some tea, chap?";
-            out.write(auth);
-            out.newLine();
-            out.flush();
-
-            String authRes = in.readLine();
-            if (authRes.equals("love some, old boy")) {
-                System.out.println("oooh");
-                // TODO read module id
-                out.write("3");
-                out.newLine();
-                out.flush();
-            } else {
-                System.out.println("ahhh");
-            }
-
-            ObjectInputStream objIn = new ObjectInputStream(sock.getInputStream());
-            ArrayList<Point> regPoints = (ArrayList<Point>) objIn.readObject();
-            for (Point point : regPoints) {
-                System.out.println(point);
-            }
-
-
-            out.close();
-            in.close();
-        } catch (Exception ex) {
+            sock = (SSLSocket) SSLSocketFactory.getDefault().createSocket("localhost", 2000);
+            System.out.printf("Connected to server at port %d.\n", sock.getLocalPort());
+            out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+            in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+            objIn = new ObjectInputStream(sock.getInputStream());
+            System.out.println("Streams successfully created.");
+        } catch (UnknownHostException ex) {
+            System.out.printf("Do not know host %s.\n", host);
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO Exception while attempting to initialise client socket.");
             ex.printStackTrace();
         }
+    }
+
+    public void prepareServerSession() {
+        try {
+            handshake();
+            authenticate();
+            System.out.println("Login to server successful.");
+        } catch (IOException ex) {
+            System.out.println("IO Exception while attempting to make a connection.");
+            ex.printStackTrace();
+        } catch (ActionFailedException ex) {
+            System.out.println("An action failed while attempting to make a connection.");
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    public ArrayList<Point> getRegistrationPoints() throws IOException, ClassNotFoundException, ClassCastException {
+        sendModuleData();
+        ArrayList<Point> regPoints = (ArrayList<Point>) getObjectMessage();
+        return regPoints;
+    }
+
+    private void handshake() throws IOException, ActionFailedException {
+        String greeting = "what ho, old chap?";
+        sendString(greeting);
+        String resp = in.readLine();
+        if (!resp.equals("good day, what?")) {
+            throw new ActionFailedException("Handshaking with the server failed.");
+        }
+    }
+
+    private void authenticate() throws IOException, ActionFailedException {
+        BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Please enter your username.");
+        String user = cmdIn.readLine();
+        System.out.println("Please enter your password.");
+        String pass = cmdIn.readLine();
+
+        String authStr = user + ":" + pass;
+
+        sendString(authStr);
+        String authRes = in.readLine();
+        if (!authRes.equals("love some, old boy")) {
+            System.out.println("Authentication with server failed. Try again? (y/n)");
+            String retry = cmdIn.readLine();
+            if (!retry.equals("y") || !retry.equals("yes")) {
+                throw new ActionFailedException("User terminated authentication with server.");
+            } else {
+                authenticate();
+            }
+        }
+    }
+
+    public void sendModuleData() throws IOException {
+        BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
+        System.out.println("Enter module id.");
+        String modID = cmdIn.readLine();
+        sendString(modID);
+    }
+
+    /**
+     * Sends a single string to the server. The string should not contain new
+     * line characters.
+     * @param s
+     * @throws IOException
+     */
+    public void sendString(String s) throws IOException {
+        out.write(s);
+        out.newLine();
+        out.flush();
+    }
+
+    /**
+     * Gets an object from the object input stream.
+     * @return
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
+    public Object getObjectMessage() throws IOException, ClassNotFoundException {
+        return objIn.readObject();
+    }
+
+    public static void main(String[] arstring) {
+//        try {
+//            System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
+//            System.setProperty("javax.net.ssl.trustStorePassword", "password");
+//            SSLSocket sock = (SSLSocket) SSLSocketFactory.getDefault().createSocket("localhost", 2000);
+//            System.out.println("Connected to server.");
+//            BufferedWriter out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
+//            BufferedReader in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
+//
+//            String greeting = "what ho, old chap?";
+//            out.write(greeting);
+//            out.newLine();
+//            out.flush();
+//
+//            String resp = in.readLine();
+//            if (resp.equals("good day, what?")) {
+//                System.out.println("well well well");
+//            } else {
+//                System.out.println("oh dear.");
+//                //TODO exit properly.
+//                return;
+//            }
+//
+//            // TODO read username and password
+//            String auth = "some tea, chap?";
+//            out.write(auth);
+//            out.newLine();
+//            out.flush();
+//
+//            String authRes = in.readLine();
+//            if (authRes.equals("love some, old boy")) {
+//                System.out.println("oooh");
+//                // TODO read module id
+//                out.write("3");
+//                out.newLine();
+//                out.flush();
+//            } else {
+//                System.out.println("ahhh");
+//            }
+//
+//            ObjectInputStream objIn = new ObjectInputStream(sock.getInputStream());
+//            ArrayList<Point> regPoints = (ArrayList<Point>) objIn.readObject();
+//            for (Point point : regPoints) {
+//                System.out.println(point);
+//            }
+//
+//
+//            out.close();
+//            in.close();
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
     }
 }
