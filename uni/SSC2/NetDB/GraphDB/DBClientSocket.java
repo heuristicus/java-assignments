@@ -8,8 +8,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 /**
@@ -30,12 +30,15 @@ public class DBClientSocket extends DBSocket {
     public void createSocket() {
         try {
             if (secure) {
-                System.setProperty("javax.net.ssl.trustStore", "graphserver");
+                System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphserver");
                 System.setProperty("javax.net.ssl.trustStorePassword", "password");
-                super.sock = SSLSocketFactory.getDefault().createSocket(ip, port);
+                SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+                super.sock = (SSLSocket) sslsocketfactory.createSocket("localhost", port);
+//                super.sock = (SSLSocket) SSLSocketFactory.getDefault().createSocket(ip, port);
             } else {
-                super.sock = new Socket(ip, port);
-                
+                System.out.println("Insecure socket unavailable.");
+//                super.sock = new Socket(ip, port);
+
             }
             openStreams();
         } catch (UnknownHostException ex) {

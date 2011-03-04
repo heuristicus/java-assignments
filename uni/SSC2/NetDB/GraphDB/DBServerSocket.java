@@ -8,16 +8,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.net.ServerSocket;
+import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
 
 /**
  *
  * @author michal
  */
-public class DBServerSocket extends DBSocket{
+public class DBServerSocket extends DBSocket {
 
-    ServerSocket servSock;
+    SSLServerSocket servSock;
 
     DBServerSocket(int port, boolean secure) {
         super(port, secure);
@@ -25,15 +26,17 @@ public class DBServerSocket extends DBSocket{
     }
 
     // <editor-fold defaultstate="collapsed" desc="Connection methods.">
-
     public void createSocket() {
         try {
             if (secure) {
-                System.setProperty("javax.net.ssl.keyStore", "graphstore");
+                System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
                 System.setProperty("javax.net.ssl.keyStorePassword", "password");
-                servSock = SSLServerSocketFactory.getDefault().createServerSocket(port);
+                SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+                servSock = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
+//                servSock = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(port);
             } else {
-                servSock = new ServerSocket(port);
+                System.out.println("Insecure socket unavailable.");
+//                servSock = new ServerSocket(port);
             }
         } catch (IOException ex) {
             System.out.println("Exception while attempting to create socket.");
@@ -47,7 +50,7 @@ public class DBServerSocket extends DBSocket{
     public void listen() {
         try {
             System.out.printf("Server listening on port %d\n", port);
-            super.sock = servSock.accept();
+            super.sock = (SSLSocket) servSock.accept();
             System.out.printf("Server connected to client at %s\n", sock.getInetAddress());
             super.out = new PrintStream(sock.getOutputStream(), true);
             super.in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -78,7 +81,7 @@ public class DBServerSocket extends DBSocket{
     /**
      * Stops this socket. Used when you want to take the server down.
      */
-    public void stop(){
+    public void stop() {
         try {
             out.close();
             objOut.close();
@@ -91,7 +94,5 @@ public class DBServerSocket extends DBSocket{
         }
 
     }
-
     // </editor-fold>
-
 }

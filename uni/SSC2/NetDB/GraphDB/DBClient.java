@@ -17,12 +17,13 @@ public class DBClient {
     DBClientSocket sock;
 
     public static void main(String[] args) {
-        DBClient c = new DBClient("127.0.0.1", 2000, true);
+        DBClient c = new DBClient("localhost", 2000, true);
         c.getRegistrationPoints();
     }
 
     public DBClient(String ip, int port, boolean secure) {
         sock = new DBClientSocket(ip, port, secure);
+        sock.createSocket();
     }
 
     public void getRegistrationPoints() {
