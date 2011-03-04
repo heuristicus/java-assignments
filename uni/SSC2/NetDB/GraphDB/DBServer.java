@@ -45,20 +45,17 @@ public class DBServer {
         try {
             String greeting = sock.getStringMessage();
             System.out.println(greeting);
-            while(true) {
-                System.out.println(sock.getStringMessage());
+            System.out.println("Received handshake message.");
+            if (greeting.equals("graphclient")) {
+                sock.sendString("graphserver");
+                authenticate();
+            } else {
+                System.out.println("Received wrong message from client");
+                sock.disconnect();
             }
-//            System.out.println("received handshake message");
-//            if (greeting.equals("graphclient")) {
-//                System.out.println("YEEEASD");
-//                sock.sendString("graphserver");
-//                authenticate();
-//            } else {
-//                System.out.println("received wrong message from client");
-//                sock.disconnect();
-//            }
         } catch (IOException ex) {
             System.out.println("Exception while attempting to handshake with client.");
+            ex.printStackTrace();
         }
     }
 
@@ -70,6 +67,7 @@ public class DBServer {
     private void authenticate() {
         try {
             String userPass = sock.getStringMessage();
+            System.out.println(userPass);
             // Protocol is to split the username and password with :, so
             // it should look like username:password
             String[] userDetails = userPass.split(":");

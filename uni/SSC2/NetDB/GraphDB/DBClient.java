@@ -43,7 +43,7 @@ public class DBClient {
      */
     private void handshake() throws DisconnectRequestException {
         try {
-            sock.sendString("graphclient\n");
+            sock.sendString("graphclient");
             System.out.println("sent handshake message.");
             String reply = sock.getStringMessage();
             System.out.println("received server reply.");
