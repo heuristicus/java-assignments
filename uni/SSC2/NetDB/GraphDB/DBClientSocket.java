@@ -22,12 +22,16 @@ public class DBClientSocket extends DBSocket {
 
     public DBClientSocket(String ip, int port, boolean secure) {
         super(port, secure);
+        this.ip = ip;
+        createSocket();
     }
 
     @Override
     public void createSocket() {
         try {
             if (secure) {
+                System.setProperty("javax.net.ssl.trustStore", "graphserver");
+                System.setProperty("javax.net.ssl.trustStorePassword", "password");
                 super.sock = SSLSocketFactory.getDefault().createSocket(ip, port);
             } else {
                 super.sock = new Socket(ip, port);

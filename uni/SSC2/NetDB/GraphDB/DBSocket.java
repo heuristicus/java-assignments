@@ -34,7 +34,6 @@ public abstract class DBSocket {
     public DBSocket(int port, boolean secure) {
         this.port = port;
         this.secure = secure;
-        createSocket();
     }
 
     public abstract void createSocket();

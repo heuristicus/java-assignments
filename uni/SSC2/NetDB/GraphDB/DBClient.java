@@ -17,7 +17,7 @@ public class DBClient {
     DBClientSocket sock;
 
     public static void main(String[] args) {
-        DBClient c = new DBClient("127.0.0.1", 2000, false);
+        DBClient c = new DBClient("127.0.0.1", 2000, true);
         c.getRegistrationPoints();
     }
 

@@ -21,6 +21,7 @@ public class DBServerSocket extends DBSocket{
 
     DBServerSocket(int port, boolean secure) {
         super(port, secure);
+        createSocket();
     }
 
     // <editor-fold defaultstate="collapsed" desc="Connection methods.">
@@ -28,6 +29,8 @@ public class DBServerSocket extends DBSocket{
     public void createSocket() {
         try {
             if (secure) {
+                System.setProperty("javax.net.ssl.keyStore", "graphstore");
+                System.setProperty("javax.net.ssl.keyStorePassword", "password");
                 servSock = SSLServerSocketFactory.getDefault().createServerSocket(port);
             } else {
                 servSock = new ServerSocket(port);

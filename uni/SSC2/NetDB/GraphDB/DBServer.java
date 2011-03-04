@@ -24,7 +24,7 @@ public class DBServer {
     }
 
     public DBServer() {
-        this(findUsablePort(), false);
+        this(findUsablePort(), true);
     }
 
     public DBServer(int port, boolean secure) {
