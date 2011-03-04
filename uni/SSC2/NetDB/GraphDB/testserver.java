@@ -43,11 +43,26 @@ public class testserver {
             }
 
             String auth = in.readLine();
+            DBAccessor dbAccess = new DBAccessor("jdbc:postgresql://localhost:5432/uschool", "mich", "mich");
+            //TODO password and user parsing here
             if (auth.equals("some tea, chap?")) {
                 System.out.println("Client authentication successful.");
-                DBAccessor dbAccess = new DBAccessor("jdbc:postgresql://localhost:5432/uschool", "mich", "mich");
                 System.out.println(dbAccess.getUserPrivileges("admin", "admin"));
+                out.write("love some, old boy");
+                out.newLine();
+                out.flush();
+            } else {
+                System.out.println("Client authentication failed.");
+                out.write("what is this muck");
+                out.newLine();
+                out.flush();
             }
+
+            String module = in.readLine();
+            String year = in.readLine();
+            int mod = Integer.parseInt(module);
+            int yr = Integer.parseInt(year);
+            System.out.println(dbAccess.getNumberStudents(mod, yr));
 
 
 

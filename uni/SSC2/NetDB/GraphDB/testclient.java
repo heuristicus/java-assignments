@@ -37,10 +37,29 @@ public class testclient {
                 System.out.println("well well well");
             } else {
                 System.out.println("oh dear.");
+                //TODO exit properly.
+                return;
             }
 
+            // TODO read username and password
             String auth = "some tea, chap?";
             out.write(auth);
+            out.newLine();
+            out.flush();
+
+            String authRes = in.readLine();
+            if (authRes.equals("love some, old boy")) {
+                System.out.println("oooh");
+                // TODO read module id, acyear
+                out.write("3");
+                out.newLine();
+                out.flush();
+                out.write("2008");
+                out.newLine();
+                out.flush();
+            } else {
+                System.out.println("ahhh");
+            }
 
 
             out.close();
