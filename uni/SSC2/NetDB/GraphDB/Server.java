@@ -9,13 +9,14 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author michal
  */
 public class Server {
-
 
     ServerSocket sock;
     int port;
@@ -37,7 +38,7 @@ public class Server {
             authenticate();
             System.out.println("Authentication successful.");
             System.out.println("Client privileges verified.");
-            readModuleID();
+            waitForRequest();
         } catch (ActionFailedException ex) {
             System.out.println("Action failed while performing initial interactions with the client.");
             System.out.println(ex.getMessage());
@@ -47,6 +48,39 @@ public class Server {
             ex.printStackTrace();
             sock.resetSocket();
         }
+    }
+
+    /**
+     * Server waits for the client to send something, and if it requests a new
+     * data set, it will respond with that data.
+     */
+    public void waitForRequest() {
+        try {
+            String request = sock.getStringMessage();
+            while (true) {
+                if (request.equals("regpointreq")) {
+                    /*
+                     * check if the client requested some new registration points
+                     * if it did, send a ready response, and then get ready to receive
+                     * data
+                     */
+                    System.out.println("Received a regpoint request from the client.");
+                    sock.sendString("ready");
+                    processRegPointRequest();
+                } else if (request.equals("disconnect")) {
+                    System.out.println("Received a disconnect request from client.");
+                    // client asked for a disconnect, so oblige and then wait for another connection.
+                    sock.sendString("disconnecting");
+                    break;
+                }
+                request = sock.getStringMessage();
+            }
+        } catch (IOException ex) {
+            System.out.println("IO Error while waiting for a request.");
+            ex.printStackTrace();
+        }
+        sock.resetSocket();
+        verifyClient();
     }
 
     public void handshake() throws ActionFailedException, IOException {
@@ -86,15 +120,25 @@ public class Server {
         }
     }
 
-    public void readModuleID() throws IOException {
+    /**
+     * Processes a request for a set of registration points. This will read a
+     * module ID from the client, and then grab the corresponding data from
+     * the database, and return it to the client as an arraylist.
+     * @throws IOException
+     */
+    public void processRegPointRequest() throws IOException {
         int modID = Integer.parseInt(sock.getStringMessage());
         System.out.println("Modid " + modID);
+        sock.sendObject(getRegPoints(modID));
+    }
+
+    private ArrayList<Point> getRegPoints(int modID) {
         ArrayList<Point> regPoint = new ArrayList<Point>();
         int fyear = database.getFirstModuleYear(modID);
         for (int curYear = fyear; curYear <= Calendar.getInstance().get(Calendar.YEAR); curYear++) {
             regPoint.add(new Point(curYear, database.getNumberStudents(modID, curYear)));
         }
-        sock.sendObject(regPoint);
+        return regPoint;
     }
 
     public static void main(String[] arstring) {

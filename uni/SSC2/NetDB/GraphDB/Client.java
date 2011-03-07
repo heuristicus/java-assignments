@@ -11,19 +11,21 @@ import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author michal
  */
-public class testclient {
+public class Client {
 
     ClientSocket sock;
 
     String host;
     int port;
 
-    public testclient(String host, int port) {
+    public Client(String host, int port) {
         this.host = host;
         this.port = port;
         sock = new ClientSocket(port, host);
@@ -46,13 +48,28 @@ public class testclient {
     }
 
     public ArrayList<Point> getRegistrationPoints() throws IOException, ClassNotFoundException, ClassCastException {
-        sendModuleData();
+        sendModuleData(readModuleData());
         // FIXME ***BELOW MAY CAUSE ERRORS (WHY THE HELL)***
         ArrayList<Point> regPoints = (ArrayList<Point>) sock.getObjectMessage();
         for (Point point : regPoints) {
             System.out.println(point);
         }
         return regPoints;
+    }
+
+    public void disconnect(){
+        try {
+            sock.sendString("disconnect");
+            String resp = sock.getStringMessage();
+            if (resp.equals("disconnect")){
+                System.out.println("Server disconnected according to protocol.");
+                sock.disconnect();
+            } else {
+                System.out.println("Server did not follow disconnect protocol, but disconnecting anyway.");
+                sock.disconnect();
+            }
+        } catch (IOException ex) {
+        }
     }
 
     private void handshake() throws IOException, ActionFailedException {
@@ -87,15 +104,37 @@ public class testclient {
         }
     }
 
-    public void sendModuleData() throws IOException {
+    public String readModuleData() throws IOException{
         BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Enter module id.");
-        String modID = cmdIn.readLine();
-        sock.sendString(modID);
+        return cmdIn.readLine();
+    }
+
+    /**
+     * Sends module data to the server.
+     * @param modID
+     * @throws IOException
+     */
+    public void sendModuleData(String modID) throws IOException {
+        System.out.println("Sending request for data to server.");
+        sock.sendString("regpointreq");
+        if (sock.getStringMessage().equals("ready")){
+            System.out.println("Server accepted request. Sending module details to server.");
+            sock.sendString(modID);
+        } else {
+            System.out.println("Server not ready to process request...waiting.");
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                System.out.println("Thread was interrupted.");
+                ex.printStackTrace();
+            }
+            sendModuleData(modID);
+        }
     }
 
     public static void main(String[] arstring) {
-        testclient t = new testclient("localhost", 2000);
+        Client t = new Client("localhost", 2000);
         t.prepareServerSession();
         try {
             ArrayList<Point> p = t.getRegistrationPoints();
