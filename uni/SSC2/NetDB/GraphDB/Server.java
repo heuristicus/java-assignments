@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -133,8 +131,9 @@ public class Server {
      */
     public void processRegPointRequest() throws IOException {
         int modID = Integer.parseInt(sock.getStringMessage());
-        System.out.println("Modid " + modID);
-        sock.sendObject(getRegPoints(modID));
+        ArrayList<Point> t = getRegPoints(modID);
+        System.out.println(t);
+        sock.sendObject(t);
     }
 
     private ArrayList<Point> getRegPoints(int modID) {

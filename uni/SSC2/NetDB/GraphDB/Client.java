@@ -19,7 +19,6 @@ import java.util.ArrayList;
 public class Client {
 
     ClientSocket sock;
-
     String host;
     int port;
 
@@ -27,7 +26,6 @@ public class Client {
         this.host = host;
         this.port = port;
         sock = new ClientSocket(port, host);
-        prepareServerSession();
     }
 
     public void prepareServerSession() {
@@ -46,9 +44,23 @@ public class Client {
         }
     }
 
-    public ArrayList<Point> getRegistrationPoints(String modID) throws IOException, ClassNotFoundException, ClassCastException {
-        sendModuleData(modID);
-        return (ArrayList<Point>) sock.getObjectMessage();
+    public ArrayList<Point> getRegistrationPoints(String modID) {
+        try {
+            sendModuleData(modID);
+            ArrayList<Point> t = (ArrayList<Point>) sock.getObjectMessage();
+            System.out.println(t);
+            return t;
+        } catch (IOException ex) {
+            System.out.println("Error while getting registration points.");
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Could not find class while getting registration points.");
+            ex.printStackTrace();
+        } catch (ClassCastException ex) {
+            System.out.println("Could not cast to the required class.");
+            ex.printStackTrace();
+        }
+        return null;
     }
 
     public ArrayList<Point> getRegistrationPoints() throws IOException, ClassNotFoundException, ClassCastException {
@@ -61,11 +73,11 @@ public class Client {
         return regPoints;
     }
 
-    public void disconnect(){
+    public void disconnect() {
         try {
             sock.sendString("disconnect");
             String resp = sock.getStringMessage();
-            if (resp.equals("disconnect")){
+            if (resp.equals("disconnect")) {
                 System.out.println("Server disconnected according to protocol.");
                 sock.disconnect();
             } else {
@@ -74,6 +86,22 @@ public class Client {
             }
         } catch (IOException ex) {
         }
+    }
+
+    public boolean handshakeServ(){
+        try {
+            String greeting = "graphclient";
+            sock.sendString(greeting);
+            String resp = sock.getStringMessage();
+            if (!resp.equals("graphserver")) {
+                return false;
+            }
+        } catch (IOException ex) {
+            System.out.println("Could not handshake with server");
+            ex.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     private void handshake() throws IOException, ActionFailedException {
@@ -85,30 +113,64 @@ public class Client {
         }
     }
 
-    private void authenticate() throws IOException, ActionFailedException {
+    public boolean authenticate(String user, String password) {
+        try {
+            return sendAuthDetails(user, password, false);
+        } catch (IOException ex) {
+            System.out.println("IO error while authenticating.");
+            ex.printStackTrace();
+            return false;
+        } catch (ActionFailedException ex) {
+            System.out.println(ex.getMessage());
+            return true;
+        }
+    }
+
+    private boolean authenticate() throws IOException, ActionFailedException {
         BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Please enter your username.");
         String user = cmdIn.readLine();
         System.out.println("Please enter your password.");
         String pass = cmdIn.readLine();
-        String authStr = user + ":" + getPasswordHex(pass);
+        return sendAuthDetails(user, pass, true);
+    }
 
+    /**
+     * Sends authentication details to the server. If the cmd value is true, it
+     * will try and get a response from the user in the commandline if authentication
+     * fails.
+     * @param user
+     * @param password
+     * @param cmd
+     * @return
+     * @throws IOException
+     * @throws ActionFailedException
+     */
+    private boolean sendAuthDetails(String user, String password, boolean cmd) throws IOException, ActionFailedException {
+        String authStr = user + ":" + getPasswordHex(password);
         sock.sendString(authStr);
         String authRes = sock.getStringMessage();
         if (!authRes.equals("authsuccess")) {
-            System.out.println("Authentication with server failed. Try again? (y/n)");
-            String retry = cmdIn.readLine();
-            if (retry.equals("y") || retry.equals("yes")) {
-                sock.sendString("reauth");
-                authenticate();
+            if (cmd) {
+                BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
+                System.out.println("Authentication with server failed. Try again? (y/n)");
+                String retry = cmdIn.readLine();
+                if (retry.equals("y") || retry.equals("yes")) {
+                    sock.sendString("reauth");
+                    authenticate();
+                } else {
+                    sock.sendString("noreauth");
+                    throw new ActionFailedException("User terminated authentication with server.");
+                }
             } else {
                 sock.sendString("noreauth");
-                throw new ActionFailedException("User terminated authentication with server.");
+                return false;
             }
         }
+        return true;
     }
 
-    public String readModuleData() throws IOException{
+    public String readModuleData() throws IOException {
         BufferedReader cmdIn = new BufferedReader(new InputStreamReader(System.in));
         System.out.println("Enter module id.");
         return cmdIn.readLine();
@@ -122,7 +184,7 @@ public class Client {
     public void sendModuleData(String modID) throws IOException {
         System.out.println("Sending request for data to server.");
         sock.sendString("regpointreq");
-        if (sock.getStringMessage().equals("ready")){
+        if (sock.getStringMessage().equals("ready")) {
             System.out.println("Server accepted request. Sending module details to server.");
             sock.sendString(modID);
         } else {
@@ -180,5 +242,4 @@ public class Client {
         return null;
     }
 // </editor-fold>
-
 }
