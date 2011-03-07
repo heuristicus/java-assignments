@@ -32,6 +32,7 @@ public class ClientSocket {
     public ClientSocket(int port, String host) {
         this.port = port;
         this.host = host;
+        initialiseSocket();
     }
 
     /**
@@ -56,6 +57,19 @@ public class ClientSocket {
         }
     }
 
+    public void disconnect() {
+        try {
+            out.close();
+            in.close();
+            if (objIn != null) {
+                objIn.close();
+            }
+            sock.close();
+        } catch (IOException ex) {
+            System.out.println("Failed to close the socket.");
+        }
+    }
+
     /**
      * Sends a single string to the server. The string should not contain new
      * line characters.
@@ -68,7 +82,7 @@ public class ClientSocket {
         out.flush();
     }
 
-    public String getStringMessage() throws IOException{
+    public String getStringMessage() throws IOException {
         return in.readLine();
     }
 
@@ -79,6 +93,7 @@ public class ClientSocket {
      * @throws ClassNotFoundException
      */
     public Object getObjectMessage() throws IOException, ClassNotFoundException {
+        objIn = new ObjectInputStream(sock.getInputStream());
         return objIn.readObject();
     }
 }
