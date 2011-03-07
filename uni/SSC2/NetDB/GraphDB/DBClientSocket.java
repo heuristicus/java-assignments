@@ -28,6 +28,17 @@ public class DBClientSocket {
     boolean secure;
     String ip;
 
+    public static void main(String[] args) {
+        DBClientSocket s = new DBClientSocket("localhost", 2000);
+        try {
+            System.out.println(s.getStringMessage());
+            s.sendString("YOUDIENOW");
+        } catch (IOException ex) {
+            System.out.println("NOOOOOO");
+            ex.printStackTrace();
+        }
+    }
+
     public DBClientSocket(String ip, int port) {
         this.ip = ip;
         this.port = port;
@@ -35,8 +46,8 @@ public class DBClientSocket {
     }
 
     private void initSock() {
-        System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphserver");
         try {
+            System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphserver");
             System.setProperty("javax.net.ssl.trustStorePassword", "password");
             SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
             sock = (SSLSocket) sslsocketfactory.createSocket(ip, port);
@@ -51,8 +62,6 @@ public class DBClientSocket {
             System.out.println("IO Exception while initalising the socket.");
             ex.printStackTrace();
         }
-
-
     }
 
     public void disconnect() {

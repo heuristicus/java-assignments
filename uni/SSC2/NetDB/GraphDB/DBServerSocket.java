@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.net.ssl.SSLServerSocket;
 import javax.net.ssl.SSLServerSocketFactory;
 import javax.net.ssl.SSLSocket;
@@ -29,6 +31,17 @@ public class DBServerSocket {
     boolean secure;
     SSLServerSocket servSock;
 
+    public static void main(String[] args) {
+        DBServerSocket s = new DBServerSocket(2000);
+        try {
+            s.sendString("adfjads;f");
+            System.out.println(s.getStringMessage());
+        } catch (IOException ex) {
+            System.out.println("NOOOOO");
+            ex.printStackTrace();
+        }
+    }
+
     DBServerSocket(int port) {
         this.port = port;
         initSock();
@@ -40,8 +53,9 @@ public class DBServerSocket {
             System.setProperty("javax.net.ssl.keyStorePassword", "password");
             SSLServerSocketFactory sslserversocketfactory = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
             servSock = (SSLServerSocket) sslserversocketfactory.createServerSocket(port);
+            System.out.printf("Server listening on port %d\n", port);
             sock = (SSLSocket) servSock.accept();
-            System.out.println("Connected to a server.");
+            System.out.printf("Connected to a client at %s.\n", sock.getInetAddress());
             out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
             System.out.println("Sucessfully initialised input and output streams.");
@@ -54,6 +68,7 @@ public class DBServerSocket {
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="connection stuff.">
     /**
      * Closes all connections made with a client, and starts listening for other connections.
      */
@@ -112,7 +127,6 @@ public class DBServerSocket {
         }
         return build.toString();
     }
-    
 //    public Object getObjectMessage() throws IOException, ClassNotFoundException {
 //        return objIn.readObject();
 //    }

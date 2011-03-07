@@ -31,7 +31,7 @@ public class DBClient {
             System.out.println("Handshaking complete.");
             authenticate();
             System.out.println("Authentication complete.");
-        } catch (DisconnectRequestException ex) {
+        } catch (ActionFailedException ex) {
             System.out.println("error getting registration.");
             ex.printStackTrace();
         }
@@ -41,7 +41,7 @@ public class DBClient {
     /**
      * Send a message to the server, to check that it provides the service you want.
      */
-    private void handshake() throws DisconnectRequestException {
+    private void handshake() throws ActionFailedException {
         try {
             sock.sendString("graphclient");
             System.out.println("sent handshake message.");
@@ -49,7 +49,7 @@ public class DBClient {
             System.out.println("received server reply.");
             if (!reply.equals("graphserver")) {
                 sock.disconnect();
-                throw new DisconnectRequestException("Server does not handle requests.");
+                throw new ActionFailedException("Server does not handle requests.");
             }
         } catch (IOException ex) {
             System.out.println("Error while handshaking with server.");
@@ -61,7 +61,7 @@ public class DBClient {
      * Authenticate with the server, reading in username and password data from
      * the commandline. Can also disconnect at this point.
      */
-    private void authenticate() throws DisconnectRequestException {
+    private void authenticate() throws ActionFailedException {
         try {
             BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Enter the user to connect with, or enter quit to stop.");
@@ -70,7 +70,7 @@ public class DBClient {
                 // send a disconnect message and then disconnect the socket.
                 sock.sendString("dc");
                 sock.disconnect();
-                throw new DisconnectRequestException("User sent quit message.");
+                throw new ActionFailedException("User sent quit message.");
             } else { // authenticate the user details
                 System.out.println("Enter the password.");
                 String password = in.readLine();
@@ -91,12 +91,12 @@ public class DBClient {
                         sock.sendString("noreauth");
                         System.out.println("Ok, disconnecting.");
                         sock.disconnect();
-                        throw new DisconnectRequestException("Client requested disconnect.");
+                        throw new ActionFailedException("Client requested disconnect.");
                     }
                 } else if (authResp.equals("authsuccess")) {
                     return;
                 } else {
-                    throw new DisconnectRequestException("Some weird stuff happened. Server sent a strange authentication message.");
+                    throw new ActionFailedException("Some weird stuff happened. Server sent a strange authentication message.");
                 }
             }
         } catch (IOException ex) {
