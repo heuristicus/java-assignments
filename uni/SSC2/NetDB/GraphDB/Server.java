@@ -14,14 +14,14 @@ import java.util.Calendar;
  *
  * @author michal
  */
-public class testserver {
+public class Server {
 
 
     ServerSocket sock;
     int port;
     DBAccessor database;
 
-    public testserver(int port) {
+    public Server(int port) {
         this.port = port;
         database = new DBAccessor("jdbc:postgresql://localhost:5432/uschool", "mich", "mich");
         sock = new ServerSocket(port);
@@ -98,7 +98,7 @@ public class testserver {
     }
 
     public static void main(String[] arstring) {
-        testserver t = new testserver(2000);
+        Server t = new Server(2000);
         t.verifyClient();
     }
 }

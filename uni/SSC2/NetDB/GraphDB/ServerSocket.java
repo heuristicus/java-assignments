@@ -31,9 +31,14 @@ public class ServerSocket {
 
     public ServerSocket(int port) {
         this.port = port;
+        initialiseSocket();
     }
 
 
+    /**
+     * gets a new SSL socket for the server, and then listens for a connection.
+     * Once a connection is established, streams are created.
+     */
     public void initialiseSocket() {
         try {
             System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
@@ -105,6 +110,7 @@ public class ServerSocket {
     }
 
     public void sendObject(Object o) throws IOException {
+        objOut = new ObjectOutputStream(sock.getOutputStream());
         objOut.writeObject(o);
         objOut.flush();
     }
