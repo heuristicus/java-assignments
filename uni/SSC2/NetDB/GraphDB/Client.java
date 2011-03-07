@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -29,6 +27,7 @@ public class Client {
         this.host = host;
         this.port = port;
         sock = new ClientSocket(port, host);
+        prepareServerSession();
     }
 
     public void prepareServerSession() {
@@ -45,6 +44,11 @@ public class Client {
             System.out.println("An action failed while attempting to make a connection.");
             System.out.println(ex.getMessage());
         }
+    }
+
+    public ArrayList<Point> getRegistrationPoints(String modID) throws IOException, ClassNotFoundException, ClassCastException {
+        sendModuleData(modID);
+        return (ArrayList<Point>) sock.getObjectMessage();
     }
 
     public ArrayList<Point> getRegistrationPoints() throws IOException, ClassNotFoundException, ClassCastException {

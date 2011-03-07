@@ -43,7 +43,7 @@ public class ServerSocket {
         try {
             System.setProperty("javax.net.ssl.keyStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
             System.setProperty("javax.net.ssl.keyStorePassword", "password");
-            servSock = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(2000);
+            servSock = (SSLServerSocket) SSLServerSocketFactory.getDefault().createServerSocket(port);
             System.out.printf("Server listening on port %d.\n", servSock.getLocalPort());
             sock = (SSLSocket) servSock.accept();
             System.out.printf("Client connected from %s.\n", sock.getInetAddress());
@@ -68,6 +68,7 @@ public class ServerSocket {
                 objOut.close();
             }
             sock.close();
+            System.out.println("Server socket streams reset.");
             System.out.printf("Server listening on port %d.\n", servSock.getLocalPort());
             sock = (SSLSocket) servSock.accept();
             System.out.printf("Client connected from %s.\n", sock.getInetAddress());
@@ -91,6 +92,7 @@ public class ServerSocket {
             }
             sock.close();
             servSock.close();
+            System.out.println("Server socket killed successfully.");
         } catch (IOException ex) {
             System.out.println("IO exception while attempting to kill server.");
             ex.printStackTrace();
@@ -109,6 +111,12 @@ public class ServerSocket {
         out.flush();
     }
 
+    /**
+     * Sends an object to the output stream. Initialises the output stream here
+     * because this was causing problems before.
+     * @param o
+     * @throws IOException
+     */
     public void sendObject(Object o) throws IOException {
         objOut = new ObjectOutputStream(sock.getOutputStream());
         objOut.writeObject(o);

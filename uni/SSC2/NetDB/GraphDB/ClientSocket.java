@@ -43,7 +43,7 @@ public class ClientSocket {
         try {
             System.setProperty("javax.net.ssl.trustStore", "/home/michal/Dropbox/Work/Programming/java/uni/SSC2/NetDB/GraphDB/graphstore");
             System.setProperty("javax.net.ssl.trustStorePassword", "password");
-            sock = (SSLSocket) SSLSocketFactory.getDefault().createSocket("localhost", 2000);
+            sock = (SSLSocket) SSLSocketFactory.getDefault().createSocket(host, port);
             System.out.printf("Connected to server at port %d.\n", sock.getPort());
             out = new BufferedWriter(new OutputStreamWriter(sock.getOutputStream()));
             in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
@@ -65,6 +65,7 @@ public class ClientSocket {
                 objIn.close();
             }
             sock.close();
+            System.out.println("Client socket disconnected successfully.");
         } catch (IOException ex) {
             System.out.println("Failed to close the socket.");
         }
@@ -87,7 +88,8 @@ public class ClientSocket {
     }
 
     /**
-     * Gets an object from the object input stream.
+     * Gets an object from the object input stream. Initialises the object stream
+     * here, because otherwise it seems like the streams freeze or something.
      * @return
      * @throws IOException
      * @throws ClassNotFoundException

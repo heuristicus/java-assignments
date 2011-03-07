@@ -56,24 +56,29 @@ public class Server {
      */
     public void waitForRequest() {
         try {
+            System.out.println("Waiting for a request.");
             String request = sock.getStringMessage();
             while (true) {
-                if (request.equals("regpointreq")) {
-                    /*
-                     * check if the client requested some new registration points
-                     * if it did, send a ready response, and then get ready to receive
-                     * data
-                     */
-                    System.out.println("Received a regpoint request from the client.");
-                    sock.sendString("ready");
-                    processRegPointRequest();
-                } else if (request.equals("disconnect")) {
-                    System.out.println("Received a disconnect request from client.");
-                    // client asked for a disconnect, so oblige and then wait for another connection.
-                    sock.sendString("disconnecting");
-                    break;
+                // FIXME this likely doesn't work - have to have some way of knowing
+                // when the client drops the connection.
+                if (request != null) {
+                    if (request.equals("regpointreq")) {
+                        /*
+                         * check if the client requested some new registration points
+                         * if it did, send a ready response, and then get ready to receive
+                         * data
+                         */
+                        System.out.println("Received a regpoint request from the client.");
+                        sock.sendString("ready");
+                        processRegPointRequest();
+                    } else if (request.equals("disconnect")) {
+                        System.out.println("Received a disconnect request from client.");
+                        // client asked for a disconnect, so oblige and then wait for another connection.
+                        sock.sendString("disconnecting");
+                        break;
+                    }
+                    request = sock.getStringMessage();
                 }
-                request = sock.getStringMessage();
             }
         } catch (IOException ex) {
             System.out.println("IO Error while waiting for a request.");
