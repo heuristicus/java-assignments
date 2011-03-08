@@ -69,6 +69,7 @@ public class Server {
                         System.out.println("Received a regpoint request from the client.");
                         sock.sendString("ready");
                         processRegPointRequest();
+                        System.out.println("Request processed.");
                     } else if (request.equals("disconnect")) {
                         System.out.println("Received a disconnect request from client.");
                         // client asked for a disconnect, so oblige and then wait for another connection.
@@ -76,6 +77,7 @@ public class Server {
                         break;
                     }
                     request = sock.getStringMessage();
+                    System.out.println(request);
                 }
             }
         } catch (IOException ex) {

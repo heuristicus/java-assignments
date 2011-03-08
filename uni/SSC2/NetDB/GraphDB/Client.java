@@ -48,7 +48,6 @@ public class Client {
         try {
             sendModuleData(modID);
             ArrayList<Point> t = (ArrayList<Point>) sock.getObjectMessage();
-            System.out.println(t);
             return t;
         } catch (IOException ex) {
             System.out.println("Error while getting registration points.");
