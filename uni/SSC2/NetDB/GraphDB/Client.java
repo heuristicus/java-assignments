@@ -76,7 +76,7 @@ public class Client {
         try {
             sock.sendString("disconnect");
             String resp = sock.getStringMessage();
-            if (resp.equals("disconnect")) {
+            if (resp.equals("disconnecting")) {
                 System.out.println("Server disconnected according to protocol.");
                 sock.disconnect();
             } else {
@@ -84,6 +84,8 @@ public class Client {
                 sock.disconnect();
             }
         } catch (IOException ex) {
+            System.out.println("Exception while attempting to disconnect");
+            ex.printStackTrace();
         }
     }
 

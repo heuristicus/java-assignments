@@ -119,28 +119,34 @@ public class Grapher extends JPanel implements ActionListener {
             g2.drawString("Year", (float) (bottomRight.getX() - origin.getX()) / 2, (float) bottomRight.getY() + 40);
 
             // max year
-            g2.drawString(String.valueOf(axRanges[0]), (float) bottomRight.getX()-20, (float) bottomRight.getY() + 10);
+//            g2.drawString(String.valueOf(axRanges[0]), (float) bottomRight.getX()-20, (float) bottomRight.getY() + 25);
             // min year
-            g2.drawString(String.valueOf(axRanges[1]), (float) origin.getX() - 5, (float) origin.getY() + 25);
+//            g2.drawString(String.valueOf(axRanges[1]), (float) origin.getX() - 5, (float) origin.getY() + 25);
             // max students
-            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX() -20, (float) topLeft.getY() + 8);
+            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX() - 20, (float) topLeft.getY() + 8);
             // min students
             g2.drawString(String.valueOf(axRanges[3]), (float) origin.getX() - 20, (float) origin.getY() + 8);
 
             int bottomAxisLength = (int) (bottomRight.getX() - origin.getX());
             int leftAxisLength = (int) (origin.getY() - topLeft.getY());
             int numYears = regPoints.size();
-            int studentsSplit = leftAxisLength / (numYears);
-            int yearsSplit = bottomAxisLength / (numYears);
+            int studentsSplit = leftAxisLength / (numYears - 1);
+            int yearsSplit = bottomAxisLength / (numYears - 1);
 
-            System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength,leftAxisLength,studentsSplit,yearsSplit);
+            System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength, leftAxisLength, studentsSplit, yearsSplit);
 
             for (int i = 0; i < regPoints.size(); i++) {
+                // point at which the marker is at the bottom axis
+                double xPoint = origin.getX() + (i * yearsSplit);
+                // point at which marker is at the left axis
+                double yPoint = origin.getY() - (i * studentsSplit);
                 // Drawing marks for each year
-                Line2D yearMark = new Line2D.Double(origin.getX() + (i * yearsSplit), origin.getY(), origin.getX() + (i * yearsSplit), origin.getY() + 10);
+                Line2D yearMark = new Line2D.Double(xPoint, origin.getY(), xPoint, origin.getY() + 10);
                 g2.draw(yearMark);
+                g2.drawString(String.valueOf(regPoints.get(i).x), (int) (xPoint - 15), (int) (origin.getY() + 25));
                 // drawing marks for student steps
-                Line2D studentMark = new Line2D.Double(origin.getX(), origin.getY() - (i * studentsSplit), origin.getX() - 10, origin.getY() - (i * studentsSplit));
+                Line2D studentMark = new Line2D.Double(origin.getX(), yPoint, origin.getX() - 10, yPoint);
+                g2.drawString(String.valueOf(axRanges[3] / (i % (numYears - 1))), (int) (origin.getX() - 15), (int) (yPoint - 5));
                 g2.draw(studentMark);
             }
         }
@@ -185,19 +191,31 @@ public class Grapher extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         String pressed = e.getActionCommand();
-        System.out.println(pressed);
         if (pressed.equals("Login")) {
             JTextField password = (JTextField) textFieldMap.get("pass");
             JTextField username = (JTextField) textFieldMap.get("user");
-            doServerAuth(password.getText(), username.getText());
+            String userText = username.getText();
+            String passText = password.getText();
+            if (userText.equals("") || passText.equals("")) {
+                JOptionPane.showMessageDialog(this, "You need to enter a username and password.");
+                return;
+            } else {
+                doServerAuth(passText, userText);
+            }
         } else if (pressed.equals("Get Data")) {
             if (!authenticated) {
                 JOptionPane.showMessageDialog(buttonPanel, "You've not yet authenticated.");
             }
             JTextField module = (JTextField) textFieldMap.get("module");
-            regPoints = gClient.getRegistrationPoints(module.getText());
-            System.out.println(regPoints);
-            repaint();
+            String modText = module.getText();
+            if (modText.equals("")) {
+                JOptionPane.showMessageDialog(this, "You haven't input any data.");
+                return;
+            } else {
+                regPoints = gClient.getRegistrationPoints(modText);
+                System.out.println(regPoints);
+                repaint();
+            }
         } else if (pressed.equals("Disconnect")) {
             gClient.disconnect();
         }
