@@ -77,6 +77,7 @@ public class Grapher extends JPanel implements ActionListener {
         JButton disconnect = new JButton("Disconnect");
 
         login.addActionListener(this);
+        disconnect.addActionListener(this);
         submitQuery.addActionListener(this);
 
         // Puts the text fields into a hashmap so that we can access them
@@ -103,9 +104,9 @@ public class Grapher extends JPanel implements ActionListener {
         Graphics2D g2 = (Graphics2D) g;
         if (regPoints != null) {
             int[] axRanges = getRanges();
-            Point2D topLeft = new Point2D.Double(50, 90);
-            Point2D origin = new Point2D.Double(50, 515);
-            Point2D bottomRight = new Point2D.Double(700, 515);
+            Point2D topLeft = new Point2D.Double(70, 90);
+            Point2D origin = new Point2D.Double(70, 515);
+            Point2D bottomRight = new Point2D.Double(720, 515);
 
             Line2D leftAxis = new Line2D.Double(topLeft, origin);
             g2.draw(leftAxis);
@@ -113,20 +114,35 @@ public class Grapher extends JPanel implements ActionListener {
             g2.draw(bottomAxis);
 
             // student label
-            g2.drawString("Students", (float) topLeft.getX() - 30, (float) (origin.getY() - topLeft.getY())/2);
+            g2.drawString("Students", (float) topLeft.getX() - 60, (float) (origin.getY() - topLeft.getY()) / 2);
             // year label
-            g2.drawString("Year", (float) (bottomRight.getX() - origin.getX())/2, (float) bottomRight.getY() + 30);
+            g2.drawString("Year", (float) (bottomRight.getX() - origin.getX()) / 2, (float) bottomRight.getY() + 40);
 
             // max year
-            g2.drawString(String.valueOf(axRanges[0]), (float) bottomRight.getX(), (float) bottomRight.getY());
+            g2.drawString(String.valueOf(axRanges[0]), (float) bottomRight.getX()-20, (float) bottomRight.getY() + 10);
             // min year
-            g2.drawString(String.valueOf(axRanges[1]), (float) origin.getX(), (float) origin.getY() + 15);
+            g2.drawString(String.valueOf(axRanges[1]), (float) origin.getX() - 5, (float) origin.getY() + 25);
             // max students
-            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX(), (float) topLeft.getY());
+            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX() -20, (float) topLeft.getY() + 8);
             // min students
-            g2.drawString(String.valueOf(axRanges[3]), (float) origin.getX() - 10, (float) origin.getY());
-            
+            g2.drawString(String.valueOf(axRanges[3]), (float) origin.getX() - 20, (float) origin.getY() + 8);
 
+            int bottomAxisLength = (int) (bottomRight.getX() - origin.getX());
+            int leftAxisLength = (int) (origin.getY() - topLeft.getY());
+            int numYears = regPoints.size();
+            int studentsSplit = leftAxisLength / (numYears);
+            int yearsSplit = bottomAxisLength / (numYears);
+
+            System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength,leftAxisLength,studentsSplit,yearsSplit);
+
+            for (int i = 0; i < regPoints.size(); i++) {
+                // Drawing marks for each year
+                Line2D yearMark = new Line2D.Double(origin.getX() + (i * yearsSplit), origin.getY(), origin.getX() + (i * yearsSplit), origin.getY() + 10);
+                g2.draw(yearMark);
+                // drawing marks for student steps
+                Line2D studentMark = new Line2D.Double(origin.getX(), origin.getY() - (i * studentsSplit), origin.getX() - 10, origin.getY() - (i * studentsSplit));
+                g2.draw(studentMark);
+            }
         }
     }
 
@@ -169,6 +185,7 @@ public class Grapher extends JPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         String pressed = e.getActionCommand();
+        System.out.println(pressed);
         if (pressed.equals("Login")) {
             JTextField password = (JTextField) textFieldMap.get("pass");
             JTextField username = (JTextField) textFieldMap.get("user");
