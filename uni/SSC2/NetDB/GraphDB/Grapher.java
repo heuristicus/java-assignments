@@ -4,11 +4,15 @@
  */
 package GraphDB;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -54,6 +58,17 @@ public class Grapher extends JPanel implements ActionListener {
         frame = new JFrame("RegGraph");
         frame.setSize(800, 600);
         frame.setResizable(false);
+//        frame.addWindowListener(new WindowAdapter() {
+
+//            @Override
+//            public void windowClosing(WindowEvent e) {
+//                System.out.println("windowclosing.");
+//                if (gClient.connected) {
+//                    gClient.disconnect();
+//                    System.exit(0);
+//                }
+//            }
+//        });
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(this);
         this.add(buttonPanel);
@@ -101,55 +116,75 @@ public class Grapher extends JPanel implements ActionListener {
 
     @Override
     protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         if (regPoints != null) {
             int[] axRanges = getRanges();
-            Point2D topLeft = new Point2D.Double(70, 90);
-            Point2D origin = new Point2D.Double(70, 515);
-            Point2D bottomRight = new Point2D.Double(720, 515);
-
-            Line2D leftAxis = new Line2D.Double(topLeft, origin);
-            g2.draw(leftAxis);
-            Line2D bottomAxis = new Line2D.Double(origin, bottomRight);
-            g2.draw(bottomAxis);
-
-            // student label
-            g2.drawString("Students", (float) topLeft.getX() - 60, (float) (origin.getY() - topLeft.getY()) / 2);
-            // year label
-            g2.drawString("Year", (float) (bottomRight.getX() - origin.getX()) / 2, (float) bottomRight.getY() + 40);
-
             // max year
 //            g2.drawString(String.valueOf(axRanges[0]), (float) bottomRight.getX()-20, (float) bottomRight.getY() + 25);
             // min year
 //            g2.drawString(String.valueOf(axRanges[1]), (float) origin.getX() - 5, (float) origin.getY() + 25);
             // max students
-            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX() - 20, (float) topLeft.getY() + 8);
+//            g2.drawString(String.valueOf(axRanges[2]), (float) topLeft.getX() - 20, (float) topLeft.getY() + 8);
             // min students
-            g2.drawString(String.valueOf(axRanges[3]), (float) origin.getX() - 20, (float) origin.getY() + 8);
+//            g2.drawString(String.valueOf(axRanges[3]), (float) origin.getX() - 20, (float) origin.getY() + 8);
 
-            int bottomAxisLength = (int) (bottomRight.getX() - origin.getX());
-            int leftAxisLength = (int) (origin.getY() - topLeft.getY());
+            int maxStudents = axRanges[2];
+
             int numYears = regPoints.size();
-            int studentsSplit = leftAxisLength / (numYears - 1);
-            int yearsSplit = bottomAxisLength / (numYears - 1);
+            if (numYears == 0 || maxStudents == 0) {
+                g2.setColor(Color.red);
+                g2.drawString("NO DATA", 300, 400);
+                g2.setColor(Color.black);
+            } else {
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Point2D topLeft = new Point2D.Double(70, 90);
+                Point2D origin = new Point2D.Double(70, 515);
+                Point2D bottomRight = new Point2D.Double(720, 515);
 
-            System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength, leftAxisLength, studentsSplit, yearsSplit);
+                Line2D leftAxis = new Line2D.Double(topLeft, origin);
+                g2.draw(leftAxis);
+                Line2D bottomAxis = new Line2D.Double(origin, bottomRight);
+                g2.draw(bottomAxis);
 
-            for (int i = 0; i < regPoints.size(); i++) {
-                // point at which the marker is at the bottom axis
-                double xPoint = origin.getX() + (i * yearsSplit);
-                // point at which marker is at the left axis
-                double yPoint = origin.getY() - (i * studentsSplit);
-                // Drawing marks for each year
-                Line2D yearMark = new Line2D.Double(xPoint, origin.getY(), xPoint, origin.getY() + 10);
-                g2.draw(yearMark);
-                g2.drawString(String.valueOf(regPoints.get(i).x), (int) (xPoint - 15), (int) (origin.getY() + 25));
-                // drawing marks for student steps
-                Line2D studentMark = new Line2D.Double(origin.getX(), yPoint, origin.getX() - 10, yPoint);
-                g2.drawString(String.valueOf(axRanges[3] / (i % (numYears - 1))), (int) (origin.getX() - 15), (int) (yPoint - 5));
-                g2.draw(studentMark);
+                // student label
+                g2.drawString("Students", (float) topLeft.getX() - 60, (float) (origin.getY() - topLeft.getY()) / 2);
+                // year label
+                g2.drawString("Year", (float) (bottomRight.getX() - origin.getX()) / 2, (float) bottomRight.getY() + 40);
+
+                int bottomAxisLength = (int) (bottomRight.getX() - origin.getX());
+                int leftAxisLength = (int) (origin.getY() - topLeft.getY());
+                int studentsSplit = leftAxisLength / (numYears - 1);
+                int yearsSplit = bottomAxisLength / (numYears - 1);
+
+                System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength, leftAxisLength, studentsSplit, yearsSplit);
+
+                for (int i = 0; i < regPoints.size(); i++) {
+                    // point at which the marker is at the bottom axis
+                    double xPoint = origin.getX() + (i * yearsSplit);
+                    // point at which marker is at the left axis
+                    double yPoint = origin.getY() - (i * studentsSplit);
+                    // Drawing marks for each year
+                    Line2D yearMark = new Line2D.Double(xPoint, origin.getY(), xPoint, origin.getY() + 10);
+                    g2.draw(yearMark);
+                    g2.drawString(String.valueOf(regPoints.get(i).x), (int) (xPoint - 15), (int) (origin.getY() + 25));
+                    g2.setColor(Color.red);
+                    g2.fillOval((int) xPoint, (int) (origin.getY() - getStudentPointY(leftAxisLength, maxStudents, regPoints.get(i).y)), 5, 5);
+                    g2.setColor(Color.black);
+                    // drawing marks for student steps
+                    Line2D studentMark = new Line2D.Double(origin.getX(), yPoint, origin.getX() - 10, yPoint);
+                    g2.drawString(String.valueOf(233), (int) (origin.getX() - 30), (int) (yPoint + 5));
+                    g2.draw(studentMark);
+                }
             }
         }
+    }
+
+    public int getStudentPointY(int leftAxisLength, int maxStudents, int studentNumber) {
+        System.out.printf("number %d, max %d, axis %d, position %f\n", studentNumber, maxStudents, leftAxisLength, ((double) studentNumber / (double) maxStudents) * leftAxisLength);
+        double s = (double) studentNumber / (double) maxStudents;
+        System.out.printf("%f ", s);
+        return (int) (((double) studentNumber / (double) maxStudents) * leftAxisLength);
     }
 
     /**

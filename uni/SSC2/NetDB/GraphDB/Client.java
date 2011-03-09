@@ -21,6 +21,7 @@ public class Client {
     ClientSocket sock;
     String host;
     int port;
+    boolean connected = false;
 
     public Client(String host, int port) {
         this.host = host;
@@ -35,6 +36,7 @@ public class Client {
             authenticate();
             System.out.println("Authentication successful.");
             System.out.println("Login to server successful.");
+            connected = true;
         } catch (IOException ex) {
             System.out.println("IO Exception while attempting to make a connection.");
             ex.printStackTrace();
@@ -87,9 +89,10 @@ public class Client {
             System.out.println("Exception while attempting to disconnect");
             ex.printStackTrace();
         }
+        connected = false;
     }
 
-    public boolean handshakeServ(){
+    public boolean handshakeServ() {
         try {
             String greeting = "graphclient";
             sock.sendString(greeting);
