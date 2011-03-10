@@ -11,8 +11,6 @@ import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
@@ -32,6 +30,7 @@ import javax.swing.JTextField;
  */
 public class Grapher extends JPanel implements ActionListener {
 
+    // user wxs001 password 6cyX6zM9
     Client gClient;
     Map textFieldMap;
     JPanel graphPanel;
@@ -58,17 +57,17 @@ public class Grapher extends JPanel implements ActionListener {
         frame = new JFrame("RegGraph");
         frame.setSize(800, 600);
         frame.setResizable(false);
-//        frame.addWindowListener(new WindowAdapter() {
-
-//            @Override
-//            public void windowClosing(WindowEvent e) {
-//                System.out.println("windowclosing.");
-//                if (gClient.connected) {
-//                    gClient.disconnect();
-//                    System.exit(0);
-//                }
-//            }
-//        });
+////        frame.addWindowListener(new WindowAdapter() {
+//
+////            @Override
+////            public void windowClosing(WindowEvent e) {
+////                System.out.println("windowclosing.");
+////                if (gClient.connected) {
+////                    gClient.disconnect();
+////                    System.exit(0);
+////                }
+////            }
+////        });
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(this);
         this.add(buttonPanel);
@@ -154,26 +153,41 @@ public class Grapher extends JPanel implements ActionListener {
 
                 int bottomAxisLength = (int) (bottomRight.getX() - origin.getX());
                 int leftAxisLength = (int) (origin.getY() - topLeft.getY());
-                int studentsSplit = leftAxisLength / (numYears - 1);
+                int studentMarks = 4;
+                int studentsSplit = leftAxisLength / studentMarks;
                 int yearsSplit = bottomAxisLength / (numYears - 1);
 
                 System.out.printf("bottom %d, lreft %d, stud %d,  year%d\n", bottomAxisLength, leftAxisLength, studentsSplit, yearsSplit);
 
+                Point lastPoint = new Point((int) origin.getX(), (int) origin.getY());
+                Point currentPoint;
                 for (int i = 0; i < regPoints.size(); i++) {
                     // point at which the marker is at the bottom axis
                     double xPoint = origin.getX() + (i * yearsSplit);
-                    // point at which marker is at the left axis
-                    double yPoint = origin.getY() - (i * studentsSplit);
                     // Drawing marks for each year
                     Line2D yearMark = new Line2D.Double(xPoint, origin.getY(), xPoint, origin.getY() + 10);
                     g2.draw(yearMark);
                     g2.drawString(String.valueOf(regPoints.get(i).x), (int) (xPoint - 15), (int) (origin.getY() + 25));
                     g2.setColor(Color.red);
-                    g2.fillOval((int) xPoint, (int) (origin.getY() - getStudentPointY(leftAxisLength, maxStudents, regPoints.get(i).y)), 5, 5);
+                    currentPoint = new Point((int) xPoint, (int) (origin.getY() - getStudentPointY(leftAxisLength, maxStudents, regPoints.get(i).y)));
+                    g2.fillOval((int) (xPoint - 2), (int) (origin.getY() - getStudentPointY(leftAxisLength, maxStudents, regPoints.get(i).y) - 2), 5, 5);
+                    g2.drawString(String.valueOf(regPoints.get(i).y), currentPoint.x, currentPoint.y);
                     g2.setColor(Color.black);
+
+                    g2.draw(new Line2D.Double(lastPoint, currentPoint));
+                    lastPoint = currentPoint;
+                }
+                for (int i = 0; i <= studentMarks; i++) {
+                    // left axis marker point
+                    double yPoint = origin.getY() - ((i) * studentsSplit);
                     // drawing marks for student steps
                     Line2D studentMark = new Line2D.Double(origin.getX(), yPoint, origin.getX() - 10, yPoint);
-                    g2.drawString(String.valueOf(233), (int) (origin.getX() - 30), (int) (yPoint + 5));
+//                    System.out.printf("current i: %d, 1/i+1: %f, max students: %d", i, (1.0/(i)), maxStudents);
+                    double i1 = i;
+                    double m = studentMarks;
+                    double markvalue = i1/m * maxStudents;
+                    System.out.printf("%f\n",markvalue);
+                    g2.drawString(String.valueOf(markvalue), (int) (origin.getX() - 30), (int) (yPoint + 5));
                     g2.draw(studentMark);
                 }
             }
@@ -181,10 +195,10 @@ public class Grapher extends JPanel implements ActionListener {
     }
 
     public int getStudentPointY(int leftAxisLength, int maxStudents, int studentNumber) {
-        System.out.printf("number %d, max %d, axis %d, position %f\n", studentNumber, maxStudents, leftAxisLength, ((double) studentNumber / (double) maxStudents) * leftAxisLength);
+//        System.out.printf("number %d, max %d, axis %d, position %f\n", studentNumber, maxStudents, leftAxisLength, ((double) studentNumber / (double) maxStudents) * leftAxisLength);
         double s = (double) studentNumber / (double) maxStudents;
-        System.out.printf("%f ", s);
-        return (int) (((double) studentNumber / (double) maxStudents) * leftAxisLength);
+//        System.out.printf("%f ", s);
+        return (int) (s * leftAxisLength);
     }
 
     /**
@@ -257,7 +271,6 @@ public class Grapher extends JPanel implements ActionListener {
     }
 
     public void doServerAuth(String user, String password) {
-        System.out.println(gClient);
         boolean hand = gClient.handshakeServ();
         if (hand) {
             boolean auth = gClient.authenticate(user, password);

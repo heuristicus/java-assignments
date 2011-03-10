@@ -167,7 +167,7 @@ public class Client {
                     throw new ActionFailedException("User terminated authentication with server.");
                 }
             } else {
-                sock.sendString("noreauth");
+                sock.sendString("reauth");
                 return false;
             }
         }
