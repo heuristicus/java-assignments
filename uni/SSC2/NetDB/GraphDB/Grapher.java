@@ -185,8 +185,8 @@ public class Grapher extends JPanel implements ActionListener {
 //                    System.out.printf("current i: %d, 1/i+1: %f, max students: %d", i, (1.0/(i)), maxStudents);
                     double i1 = i;
                     double m = studentMarks;
-                    double markvalue = i1/m * maxStudents;
-                    System.out.printf("%f\n",markvalue);
+                    double markvalue = i1 / m * maxStudents;
+                    System.out.printf("%f\n", markvalue);
                     g2.drawString(String.valueOf(markvalue), (int) (origin.getX() - 30), (int) (yPoint + 5));
                     g2.draw(studentMark);
                 }
@@ -249,7 +249,12 @@ public class Grapher extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, "You need to enter a username and password.");
                 return;
             } else {
-                doServerAuth(passText, userText);
+                if (!gClient.connected) {
+                    gClient.reconnect();
+                }
+                if (!gClient.auth) {
+                    doServerAuth(passText, userText);
+                }
             }
         } else if (pressed.equals("Get Data")) {
             if (!authenticated) {
@@ -271,8 +276,9 @@ public class Grapher extends JPanel implements ActionListener {
     }
 
     public void doServerAuth(String user, String password) {
-        boolean hand = gClient.handshakeServ();
-        if (hand) {
+        if (!gClient.handshaked) {
+            gClient.handshakeServ();
+        } else {
             boolean auth = gClient.authenticate(user, password);
             if (auth) {
                 authenticated = true;
@@ -281,6 +287,7 @@ public class Grapher extends JPanel implements ActionListener {
             }
         }
         authenticated = false;
+
         JOptionPane.showMessageDialog(buttonPanel, "Authentication failed.");
     }
 }

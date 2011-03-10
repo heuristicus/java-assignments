@@ -21,6 +21,8 @@ public class Client {
     ClientSocket sock;
     String host;
     int port;
+    boolean handshaked = false;
+    boolean auth = false;
     boolean connected = false;
 
     public Client(String host, int port) {
@@ -89,7 +91,16 @@ public class Client {
             System.out.println("Exception while attempting to disconnect");
             ex.printStackTrace();
         }
+        auth = false;
+        handshaked = false;
         connected = false;
+    }
+
+    public void reconnect() {
+        connected = false;
+        handshaked = false;
+        auth = false;
+        sock.reset();
     }
 
     public boolean handshakeServ() {
@@ -105,6 +116,7 @@ public class Client {
             ex.printStackTrace();
             return false;
         }
+        handshaked = true;
         return true;
     }
 
@@ -115,18 +127,19 @@ public class Client {
         if (!resp.equals("graphserver")) {
             throw new ActionFailedException("Handshaking with the server failed.");
         }
+        handshaked = true;
     }
 
     public boolean authenticate(String user, String password) {
         try {
             return sendAuthDetails(user, password, false);
         } catch (IOException ex) {
-            System.out.println("IO error while authenticating.");
-            ex.printStackTrace();
+            System.out.println("IO error while authenticating. May have lost connection to server. Attempting to reconnect.");
+            reconnect();
             return false;
         } catch (ActionFailedException ex) {
             System.out.println(ex.getMessage());
-            return true;
+            return false;
         }
     }
 
@@ -171,6 +184,7 @@ public class Client {
                 return false;
             }
         }
+        auth = true;
         return true;
     }
 

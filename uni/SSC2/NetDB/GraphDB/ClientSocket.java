@@ -71,6 +71,11 @@ public class ClientSocket {
         }
     }
 
+    public void reset(){
+        disconnect();
+        initialiseSocket();
+    }
+
     /**
      * Sends a single string to the server. The string should not contain new
      * line characters.
