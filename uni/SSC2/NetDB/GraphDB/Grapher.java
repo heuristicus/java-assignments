@@ -249,9 +249,6 @@ public class Grapher extends JPanel implements ActionListener {
                 JOptionPane.showMessageDialog(this, "You need to enter a username and password.");
                 return;
             } else {
-                if (!gClient.connected) {
-                    gClient.reconnect();
-                }
                 if (!gClient.auth) {
                     doServerAuth(passText, userText);
                 }
@@ -276,15 +273,15 @@ public class Grapher extends JPanel implements ActionListener {
     }
 
     public void doServerAuth(String user, String password) {
+        System.out.println("handshaked " + gClient.handshaked);
         if (!gClient.handshaked) {
             gClient.handshakeServ();
-        } else {
-            boolean auth = gClient.authenticate(user, password);
-            if (auth) {
-                authenticated = true;
-                JOptionPane.showMessageDialog(buttonPanel, "Successfully authenticated.");
-                return;
-            }
+        }
+        boolean auth = gClient.authenticate(user, password);
+        if (auth) {
+            authenticated = true;
+            JOptionPane.showMessageDialog(buttonPanel, "Successfully authenticated.");
+            return;
         }
         authenticated = false;
 

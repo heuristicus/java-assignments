@@ -94,10 +94,12 @@ public class Client {
         auth = false;
         handshaked = false;
         connected = false;
+        System.out.println("client disconnected");
     }
 
     public void reconnect() {
         connected = false;
+        System.out.println("client disconnected");
         handshaked = false;
         auth = false;
         sock.reset();
