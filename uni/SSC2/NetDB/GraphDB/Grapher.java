@@ -273,7 +273,6 @@ public class Grapher extends JPanel implements ActionListener {
     }
 
     public void doServerAuth(String user, String password) {
-        System.out.println("handshaked " + gClient.handshaked);
         if (!gClient.handshaked) {
             gClient.handshakeServ();
         }
