@@ -20,14 +20,19 @@ public class LibServer {
 
     int port;
     ServerSocket servSock;
+    private final int maxConnections;
     ArrayList<Book> books;
     Map connections;
+    ServerConnHandler handler;
+    Thread connectionHandler;
 
     public LibServer(int port, int maxConnections, ArrayList<Book> books){
         this.port = port;
+        this.maxConnections = maxConnections;
         this.books = books;
         connections = new HashMap<String, LibServSocket>();
         initServSock();
+        initConnectionHandler();
     }
 
     private void initServSock(){
@@ -39,6 +44,12 @@ public class LibServer {
         }
     }
 
+    private void initConnectionHandler(){
+        handler = new ServerConnHandler(maxConnections, this);
+        connectionHandler = new Thread(handler);
+        connectionHandler.start();
+    }
+
     public ServerSocket getServerSocket() {
         return servSock;
     }
@@ -48,6 +59,7 @@ public class LibServer {
     }
 
     public void shutdown(){
+        connectionHandler.interrupt(); // stop accepting connections
         Set connKeys = connections.keySet();
         for (Object connection : connKeys) {
             LibServSocket currConn = (LibServSocket) connections.get(connection);
@@ -55,6 +67,7 @@ public class LibServer {
         }
         try {
             servSock.close();
+            System.out.println("Server shut down.");
         } catch (IOException ex) {
             System.out.println("Error while attempting to close server socket.");
             ex.printStackTrace();

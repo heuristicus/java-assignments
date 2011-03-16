@@ -55,5 +55,15 @@ public class LibServSocket {
     }
 
     public void disconnect() {
+        try {
+            sendObject("disconnecting");
+            objOut.close();
+            objIn.close();
+            sock.close();
+        } catch (IOException ex) {
+            System.out.println("io exception while attempting to disconnect " + connectionName);
+            ex.printStackTrace();
+        }
+
     }
 }
