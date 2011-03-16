@@ -8,6 +8,9 @@ package Server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -17,11 +20,13 @@ public class LibServer {
 
     int port;
     ServerSocket servSock;
-    ArrayList<LibServSocket> connections;
+    ArrayList<Book> books;
+    Map connections;
 
-    public LibServer(int port, int maxConnections){
+    public LibServer(int port, int maxConnections, ArrayList<Book> books){
         this.port = port;
-        connections = new ArrayList<LibServSocket>();
+        this.books = books;
+        connections = new HashMap<String, LibServSocket>();
         initServSock();
     }
 
@@ -32,12 +37,21 @@ public class LibServer {
             System.out.println("Error while initialising server socket.");
             ex.printStackTrace();
         }
+    }
 
+    public ServerSocket getServerSocket() {
+        return servSock;
+    }
+
+    public void addConnection(LibServSocket sock){
+        connections.put(sock.getConnectionName(), sock);
     }
 
     public void shutdown(){
-        for (LibServSocket libServSocket : connections) {
-            libServSocket.disconnect();
+        Set connKeys = connections.keySet();
+        for (Object connection : connKeys) {
+            LibServSocket currConn = (LibServSocket) connections.get(connection);
+            currConn.disconnect();
         }
         try {
             servSock.close();

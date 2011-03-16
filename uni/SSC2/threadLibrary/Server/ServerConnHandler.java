@@ -5,6 +5,9 @@
 
 package Server;
 
+import java.io.IOException;
+import java.net.Socket;
+
 /**
  *
  * @author michal
@@ -22,8 +25,16 @@ public class ServerConnHandler implements Runnable{
     }
 
     public void listenForConnections(){
-        while (!Thread.interrupted()){
-            
+        while (!Thread.interrupted() && currentConnections <= maxConnections){
+            try {
+                Socket sock = server.getServerSocket().accept();
+                String sockName = "" + sock.hashCode();
+                LibServSocket s = new LibServSocket(sock, server, sockName);
+                server.addConnection(s);
+            } catch (IOException ex) {
+                System.out.println("Error while listening for connections.");
+                ex.printStackTrace();
+            }
         }
     }
 
