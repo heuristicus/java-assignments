@@ -26,6 +26,10 @@ public class LibServer {
     ServerConnHandler handler;
     Thread connectionHandler;
 
+    public static void main(String[] args) {
+        LibServer s = new LibServer(2000, 10, null);
+    }
+
     public LibServer(int port, int maxConnections, ArrayList<Book> books){
         this.port = port;
         this.maxConnections = maxConnections;
@@ -48,6 +52,7 @@ public class LibServer {
         handler = new ServerConnHandler(maxConnections, this);
         connectionHandler = new Thread(handler);
         connectionHandler.start();
+        System.out.println("Connection handler initialised.");
     }
 
     public ServerSocket getServerSocket() {
@@ -56,6 +61,8 @@ public class LibServer {
 
     public void addConnection(LibServSocket sock){
         connections.put(sock.getConnectionName(), sock);
+        System.out.printf("Added connection %s to server.\n", sock.getConnectionName());
+        System.out.println(connections);
     }
 
     public void shutdown(){

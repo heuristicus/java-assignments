@@ -27,8 +27,11 @@ public class ServerConnHandler implements Runnable{
     public void listenForConnections(){
         while (!Thread.interrupted() && currentConnections <= maxConnections){
             try {
+                System.out.println("Listening for connection on port " + server.servSock.getLocalPort());
                 Socket sock = server.getServerSocket().accept();
+                System.out.println("Got a connection from client at " + sock.getInetAddress());
                 String sockName = "" + sock.hashCode();
+                System.out.println("Client name: " + sockName);
                 LibServSocket s = new LibServSocket(sock, server, sockName);
                 server.addConnection(s);
             } catch (IOException ex) {
