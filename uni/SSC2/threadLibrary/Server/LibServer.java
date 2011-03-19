@@ -34,7 +34,7 @@ public class LibServer {
         this.port = port;
         this.maxConnections = maxConnections;
         this.books = books;
-        connections = new HashMap<String, LibServSocket>();
+        connections = new HashMap<Integer, LibServSocket>();
         initServSock();
         initConnectionHandler();
     }
@@ -60,9 +60,15 @@ public class LibServer {
     }
 
     public void addConnection(LibServSocket sock){
-        connections.put(sock.getConnectionName(), sock);
-        System.out.printf("Added connection %s to server.\n", sock.getConnectionName());
+        connections.put(sock.getUserID(), sock);
+        System.out.printf("Added connection with user ID %d to server.\n", sock.getUserID());
         System.out.println(connections);
+    }
+
+    public void removeConnection(int userID){
+        LibServSocket conn = (LibServSocket) connections.get(userID);
+        conn.disconnect();
+        connections.remove(userID);
     }
 
     public void shutdown(){
@@ -72,6 +78,7 @@ public class LibServer {
             LibServSocket currConn = (LibServSocket) connections.get(connection);
             currConn.disconnect();
         }
+        connections.clear();
         try {
             servSock.close();
             System.out.println("Server shut down.");

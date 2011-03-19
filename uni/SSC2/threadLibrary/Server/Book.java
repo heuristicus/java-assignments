@@ -13,18 +13,21 @@ import java.util.Queue;
  */
 public class Book {
 
-    Queue<String> reserveQueue;
+    int ID;
+    Queue<Integer> reserveQueue;
+    boolean onLoan;
     String title;
     String author;
 
-    public Book(String title, String author) {
+    public Book(String title, String author, int ID) {
         this.title = title;
         this.author = author;
-        reserveQueue = new LinkedList<String>();
+        onLoan = false;
+        reserveQueue = new LinkedList<Integer>();
     }
 
-    public void addReservation(String name){
-        reserveQueue.add(name);
+    public void addReservation(int userID){
+        reserveQueue.add(userID);
     }
 
     public void removeReservation(String name){
@@ -33,6 +36,10 @@ public class Book {
 
     public void removeFirstReservation(){
         reserveQueue.remove();
+    }
+
+    public boolean isLoaned(){
+        return onLoan;
     }
 
     public String getAuthor() {
@@ -51,9 +58,13 @@ public class Book {
         this.title = title;
     }
 
+    public int getID(){
+        return ID;
+    }
+
     @Override
     public String toString() {
-        return title + " - " + author;
+        return "" + ID + ": " + title + " - " + author;
     }
 
     

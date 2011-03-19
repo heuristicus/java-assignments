@@ -4,27 +4,37 @@
  */
 package Server;
 
-import java.io.ObjectOutputStream;
+import java.io.IOException;
 
 /**
  *
  * @author michal
  */
 public class LibSocketListener implements Runnable {
-
+    
+    private final LibServSocket sock;
     private final LibServer server;
-    private final ObjectOutputStream objOut;
 
-    public LibSocketListener(ObjectOutputStream objOut, LibServer server) {
-        this.objOut = objOut;
+    public LibSocketListener(LibServSocket sock, LibServer server) {
+        this.sock = sock;
         this.server = server;
     }
 
-    public void listen(){
-        while (!Thread.interrupted()){
-            
+    public void listen() {
+        while (!Thread.interrupted()) {
+            try {
+                String input = (String) sock.readObject();
+                if (input.equals("disconnecting")){
+                    server.removeConnection(sock.getUserID());
+                }
+            } catch (IOException ex) {
+                System.out.println("IO exception while reading client request.");
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                System.out.println("Could not find class while reading client request.");
+                ex.printStackTrace();
+            }
         }
-
     }
 
     public void run() {

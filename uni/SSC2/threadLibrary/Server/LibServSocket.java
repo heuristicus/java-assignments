@@ -15,16 +15,16 @@ import java.net.Socket;
  */
 public class LibServSocket {
 
-    String connectionName;
+    int userID;
     private final Socket sock;
     private ObjectInputStream objIn;
     private ObjectOutputStream objOut;
     private LibSocketListener listener;
 
-    public LibServSocket(Socket sock, LibServer server, String connectionName) {
+    public LibServSocket(Socket sock, LibServer server) {
         this.sock = sock;
-        this.connectionName = connectionName;
         getStreams();
+        initConnectionName();
         initListener(server);
     }
 
@@ -38,12 +38,27 @@ public class LibServSocket {
         }
     }
 
-    public String getConnectionName() {
-        return connectionName;
+    /**
+     * Gets a name for this socket from the client.
+     */
+    private void initConnectionName() {
+        try {
+            userID = (Integer) readObject();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found while getting connection name.");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO exception while trying to get a connection name.");
+            ex.printStackTrace();
+        }
+    }
+
+    public int getUserID() {
+        return userID;
     }
 
     private void initListener(LibServer server) {
-        listener = new LibSocketListener(objOut, server);
+        listener = new LibSocketListener(this, server);
     }
 
     public void sendObject(Object o) throws IOException {
@@ -61,9 +76,8 @@ public class LibServSocket {
             objIn.close();
             sock.close();
         } catch (IOException ex) {
-            System.out.println("io exception while attempting to disconnect " + connectionName);
+            System.out.printf("io exception while attempting to disconnect user ID %d.\n", userID);
             ex.printStackTrace();
         }
-
     }
 }
