@@ -50,6 +50,7 @@ public class LibClient {
             }
             sock = new LibClientSocket(host, port, userID);
             sock.connect();
+            sock.initListener(this);
         } catch (IOException ex) {
             System.out.println("Error while initialising socket.");
             ex.printStackTrace();
@@ -58,7 +59,6 @@ public class LibClient {
 
     private void readCommands() {
         boolean stop = false;
-
         while (!stop) {
             try {
                 System.out.println("Enter a command. (list, reserve, loan, return, exit)");

@@ -21,6 +21,8 @@ public class LibClientSocket {
     ObjectOutputStream objOut;
     Socket sock;
     int userID;
+    ClientSocketListener listener;
+    Thread listenerThread;
 
     LibClientSocket(String host, int port, int userID) {
         this.host = host;
@@ -41,11 +43,18 @@ public class LibClientSocket {
         }
     }
 
+    public void initListener(LibClient client) {
+        listener = new ClientSocketListener(this, client);
+        listenerThread = new Thread(listener);
+        listenerThread.start();
+    }
+
     public void disconnect(boolean sendMessage) {
         try {
-            if (sendMessage){
+            if (sendMessage) {
                 sendObject("disconnecting");
             }
+            listenerThread.interrupt();
             objOut.close();
             objIn.close();
             sock.close();
