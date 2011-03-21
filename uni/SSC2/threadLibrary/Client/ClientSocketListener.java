@@ -29,7 +29,7 @@ public class ClientSocketListener implements Runnable{
                     sock.disconnect(false);
                 }
             } catch (IOException ex) {
-                System.out.println("IO exception while reading client request.");
+                System.out.println("IO exception while reading server message.");
                 ex.printStackTrace();
             } catch (ClassNotFoundException ex) {
                 System.out.println("Could not find class while reading client request.");

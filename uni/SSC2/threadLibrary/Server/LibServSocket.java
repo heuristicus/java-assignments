@@ -20,6 +20,7 @@ public class LibServSocket {
     private ObjectInputStream objIn;
     private ObjectOutputStream objOut;
     private LibSocketListener listener;
+    Thread listenerThread;
 
     public LibServSocket(Socket sock, LibServer server) {
         this.sock = sock;
@@ -59,19 +60,26 @@ public class LibServSocket {
 
     private void initListener(LibServer server) {
         listener = new LibSocketListener(this, server);
+        listenerThread = new Thread(listener);
+        listenerThread.start();
     }
 
     public void sendObject(Object o) throws IOException {
         objOut.writeObject(o);
+        objOut.flush();
+        objOut.reset();
     }
 
     public Object readObject() throws IOException, ClassNotFoundException {
         return objIn.readObject();
     }
 
-    public void disconnect() {
+    public void disconnect(boolean sendMessage) {
         try {
-            sendObject("disconnecting");
+            if (sendMessage == true) {
+                sendObject("disconnecting");
+            }
+            listenerThread.interrupt();
             objOut.close();
             objIn.close();
             sock.close();

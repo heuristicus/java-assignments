@@ -62,6 +62,7 @@ public class LibClient {
         while (!stop) {
             try {
                 System.out.println("Enter a command. (list, reserve, loan, return, exit)");
+                System.out.print("$ ");
                 String command = cmd.readLine();
                 if (command.equals("exit")){
                     sock.disconnect(true);

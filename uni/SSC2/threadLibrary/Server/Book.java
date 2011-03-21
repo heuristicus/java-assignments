@@ -30,8 +30,8 @@ public class Book {
         reserveQueue.add(userID);
     }
 
-    public void removeReservation(String name){
-        reserveQueue.remove(name);
+    public void removeReservation(int userID){
+        reserveQueue.remove(userID);
     }
 
     public void removeFirstReservation(){

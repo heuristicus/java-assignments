@@ -51,7 +51,7 @@ public class LibClientSocket {
 
     public void disconnect(boolean sendMessage) {
         try {
-            if (sendMessage) {
+            if (sendMessage == true) {
                 sendObject("disconnecting");
             }
             listenerThread.interrupt();
@@ -66,6 +66,8 @@ public class LibClientSocket {
 
     public void sendObject(Object o) throws IOException {
         objOut.writeObject(o);
+        objOut.flush();
+        objOut.reset();
     }
 
     public Object readObject() throws IOException, ClassNotFoundException {

@@ -67,8 +67,9 @@ public class LibServer {
 
     public void removeConnection(int userID){
         LibServSocket conn = (LibServSocket) connections.get(userID);
-        conn.disconnect();
+        conn.disconnect(false);
         connections.remove(userID);
+        System.out.printf("Connection with user ID %d terminated.\n", userID);
     }
 
     public void shutdown(){
@@ -76,7 +77,7 @@ public class LibServer {
         Set connKeys = connections.keySet();
         for (Object connection : connKeys) {
             LibServSocket currConn = (LibServSocket) connections.get(connection);
-            currConn.disconnect();
+            currConn.disconnect(true);
         }
         connections.clear();
         try {
