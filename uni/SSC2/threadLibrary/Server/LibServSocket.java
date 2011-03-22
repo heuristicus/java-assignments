@@ -107,6 +107,7 @@ public class LibServSocket {
     public void reserveBook() {
         try {
             int bookID = (Integer) readObject();
+            sendObject(requestManager.reserveBook(bookID, getUserID()));
         } catch (IOException ex) {
             System.out.println("IO exception while reserving book.");
             ex.printStackTrace();

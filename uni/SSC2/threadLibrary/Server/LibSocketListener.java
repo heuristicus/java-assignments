@@ -19,9 +19,7 @@ public class LibSocketListener implements Runnable {
     }
 
     public void listen() {
-        System.out.println("listen?");
         while (!Thread.interrupted()) {
-            System.out.println("listening");
             try {
                 String input = (String) sock.readObject();
                 System.out.println(input);

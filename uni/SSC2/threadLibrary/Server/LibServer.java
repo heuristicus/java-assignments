@@ -11,6 +11,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -22,7 +24,7 @@ public class LibServer {
     int port;
     ServerSocket servSock;
     private final int maxConnections;
-    ArrayList<Book> books;
+    Map books;
     ServerConnHandler handler;
     Thread connectionHandler;
     RequestManager requestManager;
@@ -34,7 +36,7 @@ public class LibServer {
     public LibServer(int port, int maxConnections) {
         this.port = port;
         this.maxConnections = maxConnections;
-        books = new ArrayList<Book>();
+        books = new HashMap();
         getBookList();
         initServSock();
         initConnectionHandler();
@@ -49,7 +51,7 @@ public class LibServer {
             try {
                 while (currentLine != null) {
                     String[] splitLine = currentLine.split("::");
-                    books.add(new Book(splitLine[0], splitLine[1], bookCount));
+                    books.put(bookCount, new Book(splitLine[0], splitLine[1], bookCount));
                     currentLine = read.readLine();
                     bookCount++;
                 }
@@ -65,7 +67,7 @@ public class LibServer {
         }
     }
 
-    private void initRequestManager(ArrayList<Book> books) {
+    private void initRequestManager(Map books) {
         requestManager = new RequestManager(books);
     }
 

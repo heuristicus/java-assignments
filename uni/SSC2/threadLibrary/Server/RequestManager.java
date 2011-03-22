@@ -2,10 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package Server;
 
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -13,20 +13,35 @@ import java.util.ArrayList;
  */
 public class RequestManager {
 
-    ArrayList<Book> bookList;
+//    ArrayList<Book> bookList;
+    Map bookList;
 
-    public RequestManager(ArrayList<Book> bookList){
+    public RequestManager(Map bookList) {
         this.bookList = bookList;
     }
 
-    public String getBookList(){
+    public String getBookList() {
         StringBuilder build = new StringBuilder();
-        for (Book book : bookList) {
-            build.append(book);
+        Set keys = bookList.keySet();
+        for (Object object : keys) {
+            build.append(bookList.get(object));
             build.append("\n");
         }
         return build.toString();
     }
 
+    public String reserveBook(int bookID, int userID) {
+        Book requestBook = (Book) bookList.get(bookID);
+        if (requestBook == null) {
+            return String.format("Book with ID %d was not found", bookID);
+        } else {
+            boolean added = requestBook.addReservation(userID);
+            if (added) {
+                return String.format("Successfully added reservation for book %d.", bookID);
+            } else {
+                return String.format("You are already in the queue for book %d.", bookID);
+            }
+        }
 
+    }
 }

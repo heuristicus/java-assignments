@@ -28,8 +28,14 @@ public class Book implements Serializable {
         reserveQueue = new LinkedList<Integer>();
     }
 
-    public void addReservation(int userID){
-        reserveQueue.add(userID);
+    public boolean addReservation(int userID){
+        if (!reserveQueue.contains(userID)){
+            reserveQueue.add(userID);
+            System.out.println(queueToString());
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public void removeReservation(int userID){
@@ -64,9 +70,30 @@ public class Book implements Serializable {
         return ID;
     }
 
+    public String queueToString(){
+        StringBuilder build = new StringBuilder();
+        build.append("Reservation Queue for book ");
+        build.append(ID);
+        build.append("\n");
+        build.append(title);
+        build.append(" - ");
+        build.append(author);
+        build.append("\n");
+        int count = 1;
+        for (Integer integer : reserveQueue) {
+            build.append("Position ");
+            build.append(count);
+            build.append(": ");
+            build.append(integer);
+            build.append("\n");
+            count++;
+        }
+        return build.toString();
+    }
+
     @Override
     public String toString() {
-        return "" + ID + ": " + title + " - " + author;
+        return String.format(" %d: %s - %s", ID, title, author);
     }
 
     

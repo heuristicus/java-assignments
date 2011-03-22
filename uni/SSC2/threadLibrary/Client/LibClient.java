@@ -72,12 +72,19 @@ public class LibClient {
                 } else if (command.equals("list")) {
                     getBookList();
                 } else if (command.equals("reserve")) {
+                    System.out.println("Enter the book ID.");
+                    System.out.print("$ ");
                     int bookID = Integer.parseInt(cmd.readLine());
+                    System.out.println(bookID);
                     doReserve(bookID);
                 } else if (command.equals("loan")) {
+                    System.out.println("Enter the book ID.");
+                    System.out.print("$ ");
                     int bookID = Integer.parseInt(cmd.readLine());
                     doLoan(bookID);
                 } else if (command.equals("return")) {
+                    System.out.println("Enter the book ID.");
+                    System.out.print("$ ");
                     int bookID = Integer.parseInt(cmd.readLine());
                     doReturn(bookID);
                 } else {
@@ -93,8 +100,8 @@ public class LibClient {
     public void getBookList(){
         try {
             sock.sendObject("list");
-            Object s = sock.readObject();
-            System.out.println(s);
+            String list = (String) sock.readObject();
+            System.out.println(list);
         } catch (ClassNotFoundException ex) {
             System.out.println("Could not find class while getting book list.");
             ex.printStackTrace();
@@ -117,7 +124,6 @@ public class LibClient {
             System.out.println("IO exception while attempting to reserve book.");
             ex.printStackTrace();
         }
-
     }
 
     private void doReturn(int bookID) {
