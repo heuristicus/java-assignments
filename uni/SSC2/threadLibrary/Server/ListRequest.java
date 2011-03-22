@@ -5,20 +5,11 @@
 
 package Server;
 
-import java.util.ArrayList;
-import java.util.concurrent.locks.Condition;
-
 /**
  *
  * @author michal
  */
 public class ListRequest implements Runnable{
-
-    Condition writeFinished;
-
-    public ListRequest(Condition writeFinished, ArrayList<Book> bookList){
-        this.writeFinished = writeFinished;
-    }
 
     @Override
     public void run(){

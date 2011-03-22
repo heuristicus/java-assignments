@@ -43,18 +43,18 @@ public class LibClientSocket {
         }
     }
 
-    public void initListener(LibClient client) {
-        listener = new ClientSocketListener(this, client);
-        listenerThread = new Thread(listener);
-        listenerThread.start();
-    }
+//    public void initListener(LibClient client) {
+//        listener = new ClientSocketListener(this, client);
+//        listenerThread = new Thread(listener);
+//        listenerThread.start();
+//    }
 
     public void disconnect(boolean sendMessage) {
         try {
             if (sendMessage == true) {
                 sendObject("disconnecting");
             }
-            listenerThread.interrupt();
+//            listenerThread.interrupt();
             objOut.close();
             objIn.close();
             sock.close();

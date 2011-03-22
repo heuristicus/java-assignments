@@ -7,6 +7,8 @@ package Client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -42,7 +44,7 @@ public class LibClient {
                 String input = cmd.readLine();
                 try {
                     userID = Integer.parseInt(input);
-                } catch (NumberFormatException ex){
+                } catch (NumberFormatException ex) {
                     System.out.println("Your user ID should be an integer.");
                     continue;
                 }
@@ -50,7 +52,6 @@ public class LibClient {
             }
             sock = new LibClientSocket(host, port, userID);
             sock.connect();
-            sock.initListener(this);
         } catch (IOException ex) {
             System.out.println("Error while initialising socket.");
             ex.printStackTrace();
@@ -64,16 +65,89 @@ public class LibClient {
                 System.out.println("Enter a command. (list, reserve, loan, return, exit)");
                 System.out.print("$ ");
                 String command = cmd.readLine();
-                if (command.equals("exit")){
+                if (command.equals("exit")) {
                     sock.disconnect(true);
                     System.out.println("Disconnected from server.");
                     System.exit(0);
+                } else if (command.equals("list")) {
+                    getBookList();
+                } else if (command.equals("reserve")) {
+                    int bookID = Integer.parseInt(cmd.readLine());
+                    doReserve(bookID);
+                } else if (command.equals("loan")) {
+                    int bookID = Integer.parseInt(cmd.readLine());
+                    doLoan(bookID);
+                } else if (command.equals("return")) {
+                    int bookID = Integer.parseInt(cmd.readLine());
+                    doReturn(bookID);
+                } else {
+                    System.out.println("Unrecognised command.");
                 }
             } catch (IOException ex) {
                 System.out.println("IO exception while reading a command.");
                 ex.printStackTrace();
-
             }
         }
     }
+
+    public void getBookList(){
+        try {
+            sock.sendObject("list");
+            Object s = sock.readObject();
+            System.out.println(s);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Could not find class while getting book list.");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("Failed to get book list.");
+            ex.printStackTrace();
+        }
+    }
+
+    private void doReserve(int bookID) {
+        try {
+            sock.sendObject("reserve");
+            sock.sendObject(bookID);
+            String result = (String) sock.readObject();
+            System.out.println(result);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("class not found");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO exception while attempting to reserve book.");
+            ex.printStackTrace();
+        }
+
+    }
+
+    private void doReturn(int bookID) {
+        try {
+            sock.sendObject("return");
+            sock.sendObject(bookID);
+            String result = (String) sock.readObject();
+            System.out.println(result);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("class not found");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO exception while attempting to reserve book.");
+            ex.printStackTrace();
+        }
+    }
+
+    private void doLoan(int bookID) {
+        try {
+            sock.sendObject("loan");
+            sock.sendObject(bookID);
+            String result = (String) sock.readObject();
+            System.out.println(result);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("class not found");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO exception while attempting to reserve book.");
+            ex.printStackTrace();
+        }
+    }
+
 }

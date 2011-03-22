@@ -2,15 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package Server;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 /**
  *
@@ -18,28 +18,52 @@ import java.util.Set;
  */
 public class LibServer {
 
+    public static final String BOOK_FILE_LOC = "books_list.txt";
     int port;
     ServerSocket servSock;
     private final int maxConnections;
     ArrayList<Book> books;
-    Map connections;
     ServerConnHandler handler;
     Thread connectionHandler;
 
     public static void main(String[] args) {
-        LibServer s = new LibServer(2000, 10, null);
+        LibServer s = new LibServer(2000, 10);
     }
 
-    public LibServer(int port, int maxConnections, ArrayList<Book> books){
+    public LibServer(int port, int maxConnections) {
         this.port = port;
         this.maxConnections = maxConnections;
-        this.books = books;
-        connections = new HashMap<Integer, LibServSocket>();
+        books = new ArrayList<Book>();
+        getBookList();
         initServSock();
         initConnectionHandler();
     }
 
-    private void initServSock(){
+    private void getBookList() {
+        try {
+            BufferedReader read = new BufferedReader(new FileReader(new File(BOOK_FILE_LOC)));
+            String currentLine = read.readLine();
+            int bookCount = 1;
+            try {
+                while (currentLine != null) {
+                    String[] splitLine = currentLine.split("::");
+                    books.add(new Book(splitLine[0], splitLine[1], bookCount));
+                    currentLine = read.readLine();
+                    bookCount++;
+                }
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                System.out.println(currentLine);
+            }
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find book file.");
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            System.out.println("IO exception while reading book file.");
+            ex.printStackTrace();
+        }
+    }
+
+    private void initServSock() {
         try {
             servSock = new ServerSocket(port);
         } catch (IOException ex) {
@@ -48,7 +72,7 @@ public class LibServer {
         }
     }
 
-    private void initConnectionHandler(){
+    private void initConnectionHandler() {
         handler = new ServerConnHandler(maxConnections, this);
         connectionHandler = new Thread(handler);
         connectionHandler.start();
@@ -59,27 +83,8 @@ public class LibServer {
         return servSock;
     }
 
-    public void addConnection(LibServSocket sock){
-        connections.put(sock.getUserID(), sock);
-        System.out.printf("Added connection with user ID %d to server.\n", sock.getUserID());
-        System.out.println(connections);
-    }
-
-    public void removeConnection(int userID){
-        LibServSocket conn = (LibServSocket) connections.get(userID);
-        conn.disconnect(false);
-        connections.remove(userID);
-        System.out.printf("Connection with user ID %d terminated.\n", userID);
-    }
-
-    public void shutdown(){
+    public void shutdown() {
         connectionHandler.interrupt(); // stop accepting connections
-        Set connKeys = connections.keySet();
-        for (Object connection : connKeys) {
-            LibServSocket currConn = (LibServSocket) connections.get(connection);
-            currConn.disconnect(true);
-        }
-        connections.clear();
         try {
             servSock.close();
             System.out.println("Server shut down.");
@@ -88,7 +93,4 @@ public class LibServer {
             ex.printStackTrace();
         }
     }
-
-
-
 }

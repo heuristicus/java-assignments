@@ -13,11 +13,9 @@ import java.io.IOException;
 public class LibSocketListener implements Runnable {
     
     private final LibServSocket sock;
-    private final LibServer server;
 
-    public LibSocketListener(LibServSocket sock, LibServer server) {
+    public LibSocketListener(LibServSocket sock) {
         this.sock = sock;
-        this.server = server;
     }
 
     public void listen() {
@@ -28,7 +26,9 @@ public class LibSocketListener implements Runnable {
                 String input = (String) sock.readObject();
                 System.out.println(input);
                 if (input.equals("disconnecting")){
-                    server.removeConnection(sock.getUserID());
+                    sock.disconnect(false);
+                } else if(input.equals("list")){
+                    sock.sendObject("yes");
                 }
             } catch (IOException ex) {
                 System.out.println("IO exception while reading client request.");

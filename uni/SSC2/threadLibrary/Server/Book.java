@@ -4,6 +4,7 @@
  */
 package Server;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -11,7 +12,7 @@ import java.util.Queue;
  *
  * @author michal
  */
-public class Book {
+public class Book implements Serializable {
 
     int ID;
     Queue<Integer> reserveQueue;
@@ -20,6 +21,7 @@ public class Book {
     String author;
 
     public Book(String title, String author, int ID) {
+        this.ID = ID;
         this.title = title;
         this.author = author;
         onLoan = false;

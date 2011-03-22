@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  *
@@ -20,13 +21,16 @@ public class LibServSocket {
     private ObjectInputStream objIn;
     private ObjectOutputStream objOut;
     private LibSocketListener listener;
+    RequestManager requestManager;
     Thread listenerThread;
+    Thread requestThread;
 
-    public LibServSocket(Socket sock, LibServer server) {
+    public LibServSocket(Socket sock, ArrayList<Book> books) {
         this.sock = sock;
         getStreams();
         initConnectionName();
-        initListener(server);
+        initListener();
+        initRequestManager(books);
     }
 
     private void getStreams() {
@@ -58,8 +62,14 @@ public class LibServSocket {
         return userID;
     }
 
-    private void initListener(LibServer server) {
-        listener = new LibSocketListener(this, server);
+    private void initRequestManager(ArrayList<Book> books){
+        requestManager = new RequestManager(books);
+        requestThread = new Thread(requestManager);
+        requestThread.start();
+    }
+
+    private void initListener() {
+        listener = new LibSocketListener(this);
         listenerThread = new Thread(listener);
         listenerThread.start();
     }
