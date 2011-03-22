@@ -28,7 +28,13 @@ public class LibSocketListener implements Runnable {
                 if (input.equals("disconnecting")){
                     sock.disconnect(false);
                 } else if(input.equals("list")){
-                    sock.sendObject("yes");
+                    sock.listBooks();
+                } else if (input.equals("reserve")){
+                    sock.reserveBook();
+                } else if (input.equals("loan")){
+                    sock.loanBook();
+                } else if (input.equals("return")){
+                    sock.returnBook();
                 }
             } catch (IOException ex) {
                 System.out.println("IO exception while reading client request.");

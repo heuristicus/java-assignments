@@ -11,20 +11,22 @@ import java.util.ArrayList;
  *
  * @author michal
  */
-public class RequestManager implements Runnable {
+public class RequestManager {
 
     ArrayList<Book> bookList;
 
     public RequestManager(ArrayList<Book> bookList){
-        
+        this.bookList = bookList;
     }
 
-    private void waitForRequest(){
-
+    public String getBookList(){
+        StringBuilder build = new StringBuilder();
+        for (Book book : bookList) {
+            build.append(book);
+            build.append("\n");
+        }
+        return build.toString();
     }
 
-    public void run() {
-        waitForRequest();
-    }
 
 }

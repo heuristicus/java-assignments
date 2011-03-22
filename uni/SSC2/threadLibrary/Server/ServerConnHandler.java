@@ -30,7 +30,7 @@ public class ServerConnHandler implements Runnable{
                 System.out.println("Listening for connection on port " + server.servSock.getLocalPort());
                 Socket sock = server.getServerSocket().accept();
                 System.out.println("Got a connection from client at " + sock.getInetAddress());
-                LibServSocket s = new LibServSocket(sock, server.books);
+                LibServSocket s = new LibServSocket(sock, server.getRequestManager());
             } catch (IOException ex) {
                 System.out.println("Error while listening for connections.");
                 ex.printStackTrace();

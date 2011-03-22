@@ -25,6 +25,7 @@ public class LibServer {
     ArrayList<Book> books;
     ServerConnHandler handler;
     Thread connectionHandler;
+    RequestManager requestManager;
 
     public static void main(String[] args) {
         LibServer s = new LibServer(2000, 10);
@@ -37,6 +38,7 @@ public class LibServer {
         getBookList();
         initServSock();
         initConnectionHandler();
+        initRequestManager(books);
     }
 
     private void getBookList() {
@@ -61,6 +63,10 @@ public class LibServer {
             System.out.println("IO exception while reading book file.");
             ex.printStackTrace();
         }
+    }
+
+    private void initRequestManager(ArrayList<Book> books) {
+        requestManager = new RequestManager(books);
     }
 
     private void initServSock() {
@@ -93,4 +99,9 @@ public class LibServer {
             ex.printStackTrace();
         }
     }
+
+    public RequestManager getRequestManager() {
+        return requestManager;
+    }
+
 }

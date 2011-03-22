@@ -9,6 +9,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -25,12 +27,12 @@ public class LibServSocket {
     Thread listenerThread;
     Thread requestThread;
 
-    public LibServSocket(Socket sock, ArrayList<Book> books) {
+    public LibServSocket(Socket sock, RequestManager requestManager) {
         this.sock = sock;
+        this.requestManager = requestManager;
         getStreams();
         initConnectionName();
         initListener();
-        initRequestManager(books);
     }
 
     private void getStreams() {
@@ -62,12 +64,6 @@ public class LibServSocket {
         return userID;
     }
 
-    private void initRequestManager(ArrayList<Book> books){
-        requestManager = new RequestManager(books);
-        requestThread = new Thread(requestManager);
-        requestThread.start();
-    }
-
     private void initListener() {
         listener = new LibSocketListener(this);
         listenerThread = new Thread(listener);
@@ -95,6 +91,51 @@ public class LibServSocket {
             sock.close();
         } catch (IOException ex) {
             System.out.printf("io exception while attempting to disconnect user ID %d.\n", userID);
+            ex.printStackTrace();
+        }
+    }
+
+    public void listBooks() {
+        try {
+            sendObject(requestManager.getBookList());
+        } catch (IOException ex) {
+            System.out.println("IO exception while attempting to list books.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void reserveBook() {
+        try {
+            int bookID = (Integer) readObject();
+        } catch (IOException ex) {
+            System.out.println("IO exception while reserving book.");
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void loanBook() {
+        try {
+            int bookID = (Integer) readObject();
+        } catch (IOException ex) {
+            System.out.println("IO exception while loaning book.");
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found.");
+            ex.printStackTrace();
+        }
+    }
+
+    public void returnBook() {
+        try {
+            int bookID = (Integer) readObject();
+        } catch (IOException ex) {
+            System.out.println("IO exception while returning book.");
+            ex.printStackTrace();
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found.");
             ex.printStackTrace();
         }
     }
