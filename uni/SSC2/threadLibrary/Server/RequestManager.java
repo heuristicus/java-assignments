@@ -6,7 +6,8 @@ package Server;
 
 import java.util.Map;
 import java.util.concurrent.locks.Condition;
-import sun.misc.Lock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  *
@@ -21,6 +22,9 @@ public class RequestManager {
 
     public RequestManager(Map bookList) {
         this.bookList = bookList;
+        lock = new ReentrantLock();
+        writing = lock.newCondition();
+        reading=lock.newCondition();
     }
 
     public String getBookList() {
