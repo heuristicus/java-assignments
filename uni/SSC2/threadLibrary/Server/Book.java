@@ -17,6 +17,7 @@ public class Book implements Serializable {
     int ID;
     Queue<Integer> reserveQueue;
     boolean onLoan;
+    int loanedBy;
     String title;
     String author;
 
@@ -28,25 +29,34 @@ public class Book implements Serializable {
         reserveQueue = new LinkedList<Integer>();
     }
 
-    public boolean addReservation(int userID){
-        if (!reserveQueue.contains(userID)){
+    public boolean addReservation(int userID) {
+        if (!reserveQueue.contains(userID)) {
             reserveQueue.add(userID);
-            System.out.println(queueToString());
             return true;
         } else {
             return false;
         }
     }
 
-    public void removeReservation(int userID){
+    public void loan(int userID) {
+        loanedBy = userID;
+        onLoan = true;
+        removeFirstReservation();
+    }
+
+    public int getFirstInQueue() {
+        return reserveQueue.peek();
+    }
+
+    public void removeReservation(int userID) {
         reserveQueue.remove(userID);
     }
 
-    public void removeFirstReservation(){
+    public void removeFirstReservation() {
         reserveQueue.remove();
     }
 
-    public boolean isLoaned(){
+    public boolean isLoaned() {
         return onLoan;
     }
 
@@ -66,11 +76,11 @@ public class Book implements Serializable {
         this.title = title;
     }
 
-    public int getID(){
+    public int getID() {
         return ID;
     }
 
-    public String queueToString(){
+    public String queueToString() {
         StringBuilder build = new StringBuilder();
         build.append("Reservation Queue for book ");
         build.append(ID);
@@ -95,7 +105,4 @@ public class Book implements Serializable {
     public String toString() {
         return String.format(" %d: %s - %s", ID, title, author);
     }
-
-    
-
 }

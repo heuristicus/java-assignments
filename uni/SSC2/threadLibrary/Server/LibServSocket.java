@@ -120,6 +120,7 @@ public class LibServSocket {
     public void loanBook() {
         try {
             int bookID = (Integer) readObject();
+            sendObject(requestManager.loanBook(bookID, getUserID()));
         } catch (IOException ex) {
             System.out.println("IO exception while loaning book.");
             ex.printStackTrace();
