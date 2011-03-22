@@ -133,6 +133,7 @@ public class LibServSocket {
     public void returnBook() {
         try {
             int bookID = (Integer) readObject();
+            sendObject(requestManager.returnBook(bookID, getUserID()));
         } catch (IOException ex) {
             System.out.println("IO exception while returning book.");
             ex.printStackTrace();

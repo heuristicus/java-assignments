@@ -44,6 +44,11 @@ public class Book implements Serializable {
         removeFirstReservation();
     }
 
+    public void returnBook(){
+        loanedBy = 0;
+        onLoan = false;
+    }
+
     public int getFirstInQueue() {
         return reserveQueue.peek();
     }

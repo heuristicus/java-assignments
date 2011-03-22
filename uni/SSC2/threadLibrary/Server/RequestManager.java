@@ -5,7 +5,8 @@
 package Server;
 
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.locks.Condition;
+import sun.misc.Lock;
 
 /**
  *
@@ -13,50 +14,28 @@ import java.util.Set;
  */
 public class RequestManager {
 
-//    ArrayList<Book> bookList;
     Map bookList;
+    Lock lock;
+    Condition writing;
+    Condition reading;
 
     public RequestManager(Map bookList) {
         this.bookList = bookList;
     }
 
     public String getBookList() {
-        StringBuilder build = new StringBuilder();
-        Set keys = bookList.keySet();
-        for (Object object : keys) {
-            build.append(bookList.get(object));
-            build.append("\n");
-        }
-        return build.toString();
+        return ListRequest.execute(bookList);
     }
 
     public String reserveBook(int bookID, int userID) {
-        Book requestBook = (Book) bookList.get(bookID);
-        if (requestBook == null) {
-            return String.format("Book with ID %d was not found\n", bookID);
-        } else {
-            boolean added = requestBook.addReservation(userID);
-            if (added) {
-                return String.format("Successfully added reservation for book %d.\n", bookID);
-            } else {
-                return String.format("You are already in the queue for book %d.\n", bookID);
-            }
-        }
+        return ReserveRequest.execute(bookID, userID, bookList);
     }
 
-    public String loanBook(int bookID, int userID){
-        Book requestBook = (Book) bookList.get(bookID);
-        if (requestBook == null) {
-            return String.format("Book with ID %d was not found\n", bookID);
-        } else {
-            if (requestBook.onLoan){
-                return String.format("This book is already on loan by user %d.\n", requestBook.loanedBy);
-            } else if (requestBook.getFirstInQueue()  == userID){
-                requestBook.loan(userID);
-                return String.format("Successfully loaned book %d.\n", bookID);
-            } else {
-                return "You're not the first person in the queue for this book.";
-            }
-        }
+    public String loanBook(int bookID, int userID) {
+        return LoanRequest.execute(bookID, userID, bookList);
+    }
+
+    public String returnBook(int bookID, int userID) {
+        return ReturnRequest.execute(bookID, userID, bookList);
     }
 }
