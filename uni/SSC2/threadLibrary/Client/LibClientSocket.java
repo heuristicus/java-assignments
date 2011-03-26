@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 /**
  *
@@ -64,13 +65,13 @@ public class LibClientSocket {
         }
     }
 
-    public void sendObject(Object o) throws IOException {
+    public void sendObject(Object o) throws IOException, SocketException {
         objOut.writeObject(o);
         objOut.flush();
         objOut.reset();
     }
 
-    public Object readObject() throws IOException, ClassNotFoundException {
+    public Object readObject() throws IOException, ClassNotFoundException, SocketException {
         return objIn.readObject();
     }
 }

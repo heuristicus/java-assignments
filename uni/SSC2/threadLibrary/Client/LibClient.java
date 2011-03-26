@@ -7,6 +7,7 @@ package Client;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.SocketException;
 
 /**
  *
@@ -21,10 +22,10 @@ public class LibClient {
 
     public static void main(String[] args) {
         LibClient c = new LibClient("localhost", 2000);
-//        while(true){
-//            c.getBookList();
-//        }
-        c.readCommands();
+        while (true) {
+            c.getBookList();
+        }
+//        c.readCommands();
     }
 
     public LibClient(String host, int port) {
@@ -91,18 +92,24 @@ public class LibClient {
                 } else {
                     System.out.println("Unrecognised command.");
                 }
+
             } catch (IOException ex) {
                 System.out.println("IO exception while reading a command.");
                 ex.printStackTrace();
             }
         }
+
     }
 
-    public void getBookList(){
+    public void getBookList() {
         try {
             sock.sendObject("list");
             String list = (String) sock.readObject();
             System.out.println(list);
+        } catch (SocketException ex) {
+            System.out.println("Server no longer exists. Disconnecting.");
+            sock.disconnect(false);
+            System.exit(0);
         } catch (ClassNotFoundException ex) {
             System.out.println("Could not find class while getting book list.");
             ex.printStackTrace();
@@ -118,6 +125,10 @@ public class LibClient {
             sock.sendObject(bookID);
             String result = (String) sock.readObject();
             System.out.println(result);
+        } catch (SocketException ex) {
+            System.out.println("Server no longer exists. Disconnecting.");
+            sock.disconnect(false);
+            System.exit(0);
         } catch (ClassNotFoundException ex) {
             System.out.println("class not found");
             ex.printStackTrace();
@@ -133,6 +144,10 @@ public class LibClient {
             sock.sendObject(bookID);
             String result = (String) sock.readObject();
             System.out.println(result);
+        } catch (SocketException ex) {
+            System.out.println("Server no longer exists. Disconnecting.");
+            sock.disconnect(false);
+            System.exit(0);
         } catch (ClassNotFoundException ex) {
             System.out.println("class not found");
             ex.printStackTrace();
@@ -148,13 +163,17 @@ public class LibClient {
             sock.sendObject(bookID);
             String result = (String) sock.readObject();
             System.out.println(result);
+        } catch (SocketException ex) {
+            System.out.println("Server no longer exists. Disconnecting.");
+            sock.disconnect(false);
+            System.exit(0);
         } catch (ClassNotFoundException ex) {
             System.out.println("class not found");
             ex.printStackTrace();
         } catch (IOException ex) {
             System.out.println("IO exception while attempting to reserve book.");
             ex.printStackTrace();
+
         }
     }
-
 }

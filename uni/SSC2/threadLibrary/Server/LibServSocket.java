@@ -8,9 +8,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.SocketException;
 
 /**
  *
@@ -25,7 +23,6 @@ public class LibServSocket {
     private LibSocketListener listener;
     RequestManager requestManager;
     Thread listenerThread;
-    Thread requestThread;
 
     public LibServSocket(Socket sock, RequestManager requestManager) {
         this.sock = sock;
@@ -70,13 +67,13 @@ public class LibServSocket {
         listenerThread.start();
     }
 
-    public void sendObject(Object o) throws IOException {
+    public void sendObject(Object o) throws IOException, SocketException {
         objOut.writeObject(o);
         objOut.flush();
         objOut.reset();
     }
 
-    public Object readObject() throws IOException, ClassNotFoundException {
+    public Object readObject() throws IOException, ClassNotFoundException, SocketException {
         return objIn.readObject();
     }
 
@@ -89,6 +86,8 @@ public class LibServSocket {
             objOut.close();
             objIn.close();
             sock.close();
+            System.out.printf("Disconnected client %d\n", userID);
+        } catch (SocketException ex) {
         } catch (IOException ex) {
             System.out.printf("io exception while attempting to disconnect user ID %d.\n", userID);
             ex.printStackTrace();
@@ -98,6 +97,9 @@ public class LibServSocket {
     public void listBooks() {
         try {
             sendObject(requestManager.getBookList());
+        } catch (SocketException ex) {
+            System.out.println("Client was disconnected.");
+            disconnect(false);
         } catch (IOException ex) {
             System.out.println("IO exception while attempting to list books.");
             ex.printStackTrace();
@@ -108,6 +110,9 @@ public class LibServSocket {
         try {
             int bookID = (Integer) readObject();
             sendObject(requestManager.reserveBook(bookID, getUserID()));
+        } catch (SocketException ex) {
+            System.out.println("Client was disconnected.");
+            disconnect(false);
         } catch (IOException ex) {
             System.out.println("IO exception while reserving book.");
             ex.printStackTrace();
@@ -121,6 +126,9 @@ public class LibServSocket {
         try {
             int bookID = (Integer) readObject();
             sendObject(requestManager.loanBook(bookID, getUserID()));
+        } catch (SocketException ex) {
+            System.out.println("Client was disconnected.");
+            disconnect(false);
         } catch (IOException ex) {
             System.out.println("IO exception while loaning book.");
             ex.printStackTrace();
@@ -134,6 +142,9 @@ public class LibServSocket {
         try {
             int bookID = (Integer) readObject();
             sendObject(requestManager.returnBook(bookID, getUserID()));
+        } catch (SocketException ex) {
+            System.out.println("Client was disconnected.");
+            disconnect(false);
         } catch (IOException ex) {
             System.out.println("IO exception while returning book.");
             ex.printStackTrace();
