@@ -5,9 +5,8 @@
 package Server;
 
 import java.util.Map;
-import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  *
@@ -16,30 +15,30 @@ import java.util.concurrent.locks.ReentrantLock;
 public class RequestManager {
 
     Map bookList;
-    Lock lock;
-    Condition writing;
-    Condition reading;
+    ReentrantReadWriteLock lock;
+    Lock readLock;
+    Lock writeLock;
 
     public RequestManager(Map bookList) {
         this.bookList = bookList;
-        lock = new ReentrantLock();
-        writing = lock.newCondition();
-        reading=lock.newCondition();
+        lock = new ReentrantReadWriteLock();
+        readLock = lock.readLock();
+        writeLock = lock.writeLock();
     }
 
     public String getBookList() {
-        return ListRequest.execute(bookList);
+        return ListRequest.execute(bookList, readLock);
     }
 
     public String reserveBook(int bookID, int userID) {
-        return ReserveRequest.execute(bookID, userID, bookList);
+        return ReserveRequest.execute(bookID, userID, bookList, writeLock);
     }
 
     public String loanBook(int bookID, int userID) {
-        return LoanRequest.execute(bookID, userID, bookList);
+        return LoanRequest.execute(bookID, userID, bookList, writeLock);
     }
 
     public String returnBook(int bookID, int userID) {
-        return ReturnRequest.execute(bookID, userID, bookList);
+        return ReturnRequest.execute(bookID, userID, bookList, writeLock);
     }
 }
