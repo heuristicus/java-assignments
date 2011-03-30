@@ -18,12 +18,14 @@ public class ReturnRequest {
         try {
             Book requestBook = (Book) bookList.get(bookID);
             if (requestBook == null) {
+                lock.unlock();
                 return String.format("Book with ID %d was not found\n", bookID);
             } else {
                 if (!requestBook.isLoaned()) {
                     return "This book is not on loan. You have to loan it before you can return it.";
                 } else if (requestBook.isLoaned() && requestBook.loanedBy == userID) {
                     requestBook.returnBook();
+                    lock.unlock();
                     return String.format("Successfully returned book %s.\n", requestBook.getTitle());
                 } else {
                     return "This book wasn't loaned by you.";

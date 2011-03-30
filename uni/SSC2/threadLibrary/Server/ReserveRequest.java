@@ -18,9 +18,11 @@ public class ReserveRequest {
         try {
             Book requestBook = (Book) bookList.get(bookID);
             if (requestBook == null) {
+                lock.unlock();
                 return String.format("Book with ID %d was not found\n", bookID);
             } else {
                 boolean added = requestBook.addReservation(userID);
+                lock.unlock();
 //                try {
 //                    Thread.sleep(20000);
 //                } catch (InterruptedException ex) {

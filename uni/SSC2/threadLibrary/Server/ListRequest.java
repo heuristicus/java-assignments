@@ -7,8 +7,6 @@ package Server;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -25,11 +23,12 @@ public class ListRequest{
                 build.append(bookList.get(object));
                 build.append("\n");
             }
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(ListRequest.class.getName()).log(Level.SEVERE, null, ex);
-            }
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException ex) {
+//                Logger.getLogger(ListRequest.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+            lock.unlock();
             return build.toString();
         } finally {
             lock.unlock();
