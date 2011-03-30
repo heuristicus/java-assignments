@@ -96,7 +96,9 @@ public class LibServSocket {
 
     public void listBooks() {
         try {
+            System.out.println("getting list");
             sendObject(requestManager.getBookList());
+            System.out.println("sent list");
         } catch (SocketException ex) {
             System.out.println("Client was disconnected.");
             disconnect(false);

@@ -23,7 +23,16 @@ public class LibClient {
     public static void main(String[] args) {
         LibClient c = new LibClient("localhost", 2000);
         while (true) {
-            c.getBookList();
+            try {
+//                c.getBookList();
+                c.doReserve(4);
+                Thread.sleep((long) (Math.random() * 100));
+                c.doLoan(4);
+                c.doReturn(4);
+                Thread.sleep((long) (Math.random() * 100));
+            } //        c.readCommands();
+            catch (InterruptedException ex) {
+            }
         }
 //        c.readCommands();
     }
@@ -119,7 +128,7 @@ public class LibClient {
         }
     }
 
-    private void doReserve(int bookID) {
+    public void doReserve(int bookID) {
         try {
             sock.sendObject("reserve");
             sock.sendObject(bookID);
@@ -138,7 +147,7 @@ public class LibClient {
         }
     }
 
-    private void doReturn(int bookID) {
+    public void doReturn(int bookID) {
         try {
             sock.sendObject("return");
             sock.sendObject(bookID);
@@ -157,7 +166,7 @@ public class LibClient {
         }
     }
 
-    private void doLoan(int bookID) {
+    public void doLoan(int bookID) {
         try {
             sock.sendObject("loan");
             sock.sendObject(bookID);

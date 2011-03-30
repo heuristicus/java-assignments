@@ -14,7 +14,7 @@ import java.util.logging.Logger;
  *
  * @author michal
  */
-public class ListRequest {
+public class ListRequest{
 
     public static String execute(Map bookList, Lock lock) {
         StringBuilder build = new StringBuilder();
@@ -35,4 +35,5 @@ public class ListRequest {
             lock.unlock();
         }
     }
+
 }

@@ -22,7 +22,7 @@ public class LibSocketListener implements Runnable {
         while (!Thread.interrupted()) {
             try {
                 String input = (String) sock.readObject();
-//                System.out.println(input);
+                System.out.println(input);
                 if (input.equals("disconnecting")){
                     sock.disconnect(false);
                 } else if(input.equals("list")){
