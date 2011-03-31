@@ -22,12 +22,15 @@ public class LoanRequest {
                 return String.format("Book with ID %d was not found\n", bookID);
             } else {
                 if (requestBook.isLoaned()) {
-                    return String.format("This book is already on loan by user %d.\n", requestBook.loanedBy);
+                    String response = String.format("This book is already on loan by user %d.\n", requestBook.loanedBy);
+                    lock.unlock();
+                    return response;
                 } else if (requestBook.getFirstInQueue() == userID) {
                     requestBook.loan(userID);
                     lock.unlock();
                     return String.format("Successfully loaned book %s.\n", requestBook.getTitle());
                 } else {
+                    lock.unlock();
                     return "You're not the first person in the queue for this book.";
                 }
             }
