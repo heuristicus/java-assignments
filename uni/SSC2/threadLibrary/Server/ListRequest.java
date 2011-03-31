@@ -12,7 +12,7 @@ import java.util.concurrent.locks.Lock;
  *
  * @author michal
  */
-public class ListRequest{
+public class ListRequest {
 
     public static String execute(Map bookList, Lock lock) {
         StringBuilder build = new StringBuilder();
@@ -31,8 +31,11 @@ public class ListRequest{
             lock.unlock();
             return build.toString();
         } finally {
-            lock.unlock();
+            try {
+                lock.unlock();
+            } catch (IllegalMonitorStateException ex) {
+                // catch this exception - occurs if the lock is already unlocked.
+            }
         }
     }
-
 }

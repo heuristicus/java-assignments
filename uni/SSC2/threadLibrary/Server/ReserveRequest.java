@@ -35,7 +35,11 @@ public class ReserveRequest {
                 }
             }
         } finally {
-            lock.unlock();
+            try {
+                lock.unlock();
+            } catch (IllegalMonitorStateException ex) {
+                // catch this exception - occurs if the lock is already unlocked.
+            }
         }
     }
 }
