@@ -1,0 +1,1 @@
+This is supposed to create a string generator for a specific grammar from a grammar definition provided in a text file. It will read the file and produce the necessary java methods to create strings that are valid for that grammar. The basic layout for a string generator can be found in ../Generators
