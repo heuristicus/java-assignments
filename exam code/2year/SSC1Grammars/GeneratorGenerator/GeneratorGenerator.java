@@ -64,6 +64,14 @@ public class GeneratorGenerator {
     public String genStartMethod() {
         String startSymbolMethod = "public String generateString() {\n\tString genned = \"\";\n\t";
         ArrayList<String> rules = symbols.get('S');
+
+        /*
+         * If there is more than one rule for the start symbol, 
+         */
+        if (rules.size() > 1) {
+            double probSkip = 1.0 / rules.size();
+            startSymbolMethod += "";
+        }
         for (String string : rules) {
             char[] chars = string.toCharArray();
             for (char c : chars) {

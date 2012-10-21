@@ -21,11 +21,8 @@ public class WBBGenerator {
     }
 
     public String generateRandomWBB() {
-        Random r = new Random();
         String genned = "";
-        while (r.nextBoolean()) {
-            genned += genD();
-        }
+        genned += genD();
         return genned;
     }
 

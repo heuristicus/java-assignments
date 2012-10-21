@@ -22,19 +22,7 @@ public class LibClient {
 
     public static void main(String[] args) {
         LibClient c = new LibClient("localhost", 2000);
-        while (true) {
-            try {
-//                c.getBookList();
-                c.doReserve(4);
-                Thread.sleep((long) (Math.random() * 100));
-                c.doLoan(4);
-                c.doReturn(4);
-                Thread.sleep((long) (Math.random() * 100));
-            } //        c.readCommands();
-            catch (InterruptedException ex) {
-            }
-        }
-//        c.readCommands();
+        c.readCommands();
     }
 
     public LibClient(String host, int port) {

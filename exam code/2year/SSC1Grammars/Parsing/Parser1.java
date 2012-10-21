@@ -46,21 +46,15 @@ public class Parser1 {
     }
 
     public void parseD() throws FormatException {
-        System.out.println("parsing D");
         switch (lookahead()) {
             case '[':
-                System.out.println("lookahead is [");
                 match('[');
-                System.out.println("matched opening bracket");
                 parseD();
                 match(']');
-                System.out.println("matched close bracket");
                 parseD();
                 break;
             case ']':
-                System.out.println("lookahead is ]");
             case '$':
-                System.out.println("lookahead is $");
                 break;
             default:
                 throw new FormatException();
