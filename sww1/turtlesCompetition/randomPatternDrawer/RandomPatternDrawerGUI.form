@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="moveLength" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="moveLengthInput" min="-2" pref="86" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="seedVal" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="seedInput" min="-2" pref="86" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="minMoveBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                          <Component id="minMoveInput" min="-2" pref="86" max="-2" attributes="0"/>
+                      </Group>
+                      <Group type="102" alignment="0" attributes="0">
+                          <Component id="recursePerMove" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Group type="103" groupAlignment="0" attributes="0">
+                              <Component id="recurseRandom" alignment="0" min="-2" max="-2" attributes="0"/>
+                              <Component id="recurseInput" alignment="0" max="32767" attributes="0"/>
+                          </Group>
+                      </Group>
+                  </Group>
+                  <Component id="allRandom" alignment="0" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace pref="228" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="allRandom" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="37" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="seedVal" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="seedInput" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="moveLength" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="moveLengthInput" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="minMoveBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="minMoveInput" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="recurseInput" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="recursePerMove" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <Component id="recurseRandom" min="-2" max="-2" attributes="0"/>
+              <EmptySpace pref="45" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="seedVal">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Seed Value"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="seedInput">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="This value is used to influence various things such as move distance,"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="moveLengthInput">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="This value is used to influence various things such as move distance,"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="moveLength">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Move Length"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="minMoveInput">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="This value is used to influence various things such as move distance,"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="minMoveBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Minimum Move Length"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="recurseInput">
+      <Properties>
+        <Property name="toolTipText" type="java.lang.String" value="This value is used to influence various things such as move distance,"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="recursePerMove">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Number of Recursions per move"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="recurseRandom">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Random number"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="allRandom">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Everything Random"/>
+        <Property name="toolTipText" type="java.lang.String" value="May not produce the best results, and will probably run very slowly."/>
+      </Properties>
+    </Component>
+  </SubComponents>
+</Form>
