@@ -1,0 +1,3 @@
+# Default JDBC driver and database specification
+jdbc.drivers      =  sun.jdbc.odbc.JdbcOdbcDriver
+database  =  jdbc:postgresql://dbteach/ssclibrary
